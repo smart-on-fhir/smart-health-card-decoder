@@ -175,6 +175,7 @@ export interface ImmunizationRecord {
 
 export interface VerificationRecord {
     verified: boolean,
+    issuer: string,
     immunizations?: ImmunizationRecord,
     errors?: LogEntry[]
 }

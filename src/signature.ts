@@ -16,14 +16,16 @@ import key from "./key";
 
 async function verify(context: Context): Promise<Context> {
 
-    /*
+    /**
+     * 
+     * verify assumes that the JWS object has already been fully decoded
      * 
      * Required for signature validation:
      * 
      *  1. Signature bytes from context.jws.signature
      *  2. context.jws.header.kid to match against public key
      *  3. public key with matching kid
-     *  4. first two segments of the context.jwscompact string
+     *  4. first two segments of the context.jwscompact string or comtext.flat
      *  5. crypto signature verification api
      * 
      */
@@ -32,10 +34,9 @@ async function verify(context: Context): Promise<Context> {
     const { log } = context;
     log.label = 'SIGNATURE';
 
-
+    // the data to check the signature against
     const compact = context.compact;
     const flat = context.flat;
-
     if (!compact && !(flat.header || flat.payload)) {
         log.fatal(`context.compact or context.flat required to check signature`, ErrorCode.JWS_COMPACT_MISSING);
         return context;

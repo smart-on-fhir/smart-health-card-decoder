@@ -92,18 +92,20 @@ async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = 
     const jws = context.jws;
     jws && api.validate.jws(context);
 
+    const issuer = context.signature?.issuer?.name || context.signature?.issuer?.iss || '';
+    const errors = context.errors;
+
     if (!jws) {
-        return { verified: false, errors: context.errors, immunizations: undefined };
+        return { verified: false, errors, immunizations: undefined, issuer};
     }
 
     await api.signature.verify(context);
 
-    const errors = context.errors;
     const verified = !!context.signature?.verified;
     const immunizations = fhir.getImmunizationRecord(context);
 
 
-    return { verified, errors, immunizations };
+    return { verified, errors, immunizations, issuer };
 }
 
 
