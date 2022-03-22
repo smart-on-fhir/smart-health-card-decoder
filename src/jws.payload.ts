@@ -1,45 +1,47 @@
-import { JWS, JWSPayload } from "./types";
-import b64 from "./base64";
-import { Artifact } from "./log";
+import { JWSPayload } from "./types";
 import { inflateSync } from "fflate";
-import ValidationContext from "./context";
+import Context from "./context";
 import { ErrorCode } from "./error";
 import utils from "./utils";
+import convert from "./convert";
+import * as fflfate from "fflate";
 
 
-const base64urlPatternWS = /^\s*[\w-]+\s*$/;
-const base64urlPattern = /[\w-]+/;
+const label = 'JWS.payload';
 
 
-async function validate(context: ValidationContext): Promise<ValidationContext> {
+function validate(context: Context): Context {
 
-    const {log} = context;
-    log.artifact = Artifact.PAYLOAD;
+    const { log } = context;
+    log.label = label;
 
-    if(!context?.jws?.payload) {
-        log.fatal('context.jws.payload not found. Cannot do validations.');
+    const payload = context.jws.payload;
+
+    //
+    // payload must be an Object
+    //  
+    if (!utils.is.object(payload)) {
+        log.fatal("JWS payload is not an Object.", ErrorCode.JWS_PAYLOAD_ERROR);
         return context;
     }
 
-    const payload = context?.jws?.payload ?? {};
-
     if (!('iss' in payload)) {
-        log.fatal(`JWS Payload missing 'issuer' ('iss') property.`);
+        log.fatal(`JWS Payload missing 'issuer' ('iss') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
         return context;
     }
 
     if (!('nbf' in payload)) {
-        log.fatal(`JWS Payload missing 'not before' ('nbf') property.`);
+        log.fatal(`JWS Payload missing 'not before' ('nbf') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
         return context;
     }
 
     if (!('vc' in payload)) {
-        log.fatal(`JWS Payload missing 'verifiable credential' ('vc') property.`);
+        log.fatal(`JWS Payload missing 'verifiable credential' ('vc') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
         return context;
     }
 
     if ('exp' in payload) {
-        log.fatal(`JWS Payload missing 'expiration' ('exp') property.`);
+        log.fatal(`JWS Payload missing 'expiration' ('exp') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
         return context;
     }
 
@@ -47,40 +49,77 @@ async function validate(context: ValidationContext): Promise<ValidationContext> 
 }
 
 
-function decode(payload: string, context: ValidationContext): ValidationContext {
+function decode(context: Context): Context {
 
-    const {log} = context;
-    log.artifact = Artifact.PAYLOAD;
+    const { log } = context;
+    log.label = label;
+    const payload = context.flat.payload;
 
-    if(typeof payload !== 'string') {
-        log.fatal(`payload parameter not a string`, ErrorCode.JWS_PAYLOAD_ERROR);
-        return context;
-    }
-
-    if (!base64urlPatternWS.test(payload)) {
-        log.fatal(`payload parameter not base64url format`, ErrorCode.JWS_PAYLOAD_ERROR);
+    //
+    // payload param must be base64url 
+    //    
+    if (!utils.is.base64url(payload)) {
+        log.fatal(`payload parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
         return context;
     };
+    log.debug(`payload base64url:\n ${payload}`);
 
-    const base64url = payload.match(base64urlPattern)?.[0] ?? '';
-    log.debug(`payload base64url:\n ${base64url}`);
+    //
+    // decode to bytes
+    //  
+    const uint8Array: Uint8Array = convert.base64ToBytes(payload.trim());
+    log.debug(`payload Uint8Array:\n ${uint8Array}`);
 
-    const arrayBuffer = b64.toArrayBuffer(base64url);
-    log.debug(`payload ArrayBuffer:\n ${arrayBuffer}`);
-
-    const inflatedUint8 = inflateSync(new Uint8Array(arrayBuffer));
-    const utf8 = new TextDecoder("utf-8").decode(inflatedUint8);
-    const jwsPayload = utils.parseJson<JWSPayload>(utf8);
-
-    if (!jwsPayload) {
-        log.fatal('JWS Payload could not be decoded.', ErrorCode.JWS_PAYLOAD_ERROR);
+    //
+    // 'inflate' the bytes to bytes
+    //  
+    let inflatedUint8;
+    try {
+        inflatedUint8 = inflateSync(uint8Array);
+    } catch (error) {
+        log.fatal(`failed to inflate payload ${(error as Error).toString()}`, ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
         return context;
     }
 
-    context.jws = context.jws || {} as JWS;
+    //
+    // decode to json text
+    //  
+    const json = convert.bytesToText(inflatedUint8);
+
+    //
+    // convert json to payload object
+    //
+    const jwsPayload = utils.parseJson<JWSPayload>(json);
+
+    if (!jwsPayload) {
+        log.fatal('JWS Payload could not be decoded as JSON.', ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
+        return context;
+    }
+
     context.jws.payload = jwsPayload;
+    context.fhirbundle = context.jws.payload?.vc?.credentialSubject?.fhirBundle;
 
     return context;
 }
 
-export default { decode, validate };
+
+function encode(context: Context): Context {
+
+    const { log } = context;
+    log.label = label;
+
+    if (validate(context).log.isFatal) return context;
+
+    const json = JSON.stringify(context.jws.payload);
+
+    const bytes = convert.textToBytes(json);
+
+    const deflated = fflfate.deflateSync(new Uint8Array(bytes), { level: context.options?.deflateLevel || 6 });
+
+    context.flat.payload = convert.bytesToBase64(deflated, true);
+
+    return context;
+}
+
+
+export default { encode, decode, validate };

@@ -1,83 +1,66 @@
 import { ErrorCode } from "./error";
-import { Artifact } from "./log";
-import b64 from "./base64";
-import ValidationContext from "./context";
-import { JWS, JWSHeader } from "./types";
 import utils from "./utils";
+import Context from "./context";
+import { Base64Url } from "./types";
+import convert from "./convert";
+import key from "./key";
 
-const base64urlPatternWS = /^\s*[\w-]+\s*$/;
-const base64urlPattern = /[\w-]+/;
 
-function decode(header: string, context: ValidationContext): ValidationContext {
+const label = 'JWS.header';
 
-    const log = context.log;
-    log.artifact = Artifact.JWS;
+const REQUIRED_HEADER_VALUES = {
+    zip: 'DEF',
+    alg: 'ES256',
+}
 
-    //
-    // header param must be a string
-    //    
-    if (typeof header !== 'string') {
-        log.fatal(`header parameter not a string`, ErrorCode.JWS_HEADER_DECODE_FAIL);
-        return context;
-    }
+
+function decode(context: Context): Context {
+
+    const { log } = context;
+    log.label = label;
+    const header = context.flat.header;
 
     //
     // header param must be base64url encoded
     //    
-    if (!base64urlPatternWS.test(header)) {
-        log.fatal(`header parameter not base64url format`, ErrorCode.JWS_HEADER_DECODE_FAIL);
+    if (!utils.is.base64url(header)) {
+        log.fatal(`header parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
         return context;
     };
 
     //
-    // extract only the base64url ignoring whitespace
-    //   
-    const base64url = header.match(base64urlPattern)?.[0] ?? '';
-    log.debug(`header base64url:\n ${base64url}`);
-
-    //
-    // extract only the base64url ignoring whitespace
+    // decode to json text
     //  
-    const text = b64.toUtf8(base64url);
-    log.debug(`header json:\n ${text}`);
+    const json = convert.base64ToText(header);
+    log.debug(`header json:\n ${json}`);
 
     //
-    // create an empty JWS if one does not already exist
-    // 
-    context.jws = context.jws || {} as JWS;
-
-    //
-    // header base64url must be parseable as JSON
+    // header text must be parse-able as JSON
     //   
     try {
-        context.jws.header = JSON.parse(text);
+        context.jws.header = JSON.parse(json);
     } catch {
         log.fatal(`header cannot be parsed as JSON`, ErrorCode.JWS_HEADER_DECODE_FAIL);
+        context.jws.header = undefined;
     }
 
     return context;
 }
 
 
-//function validate(header: JWSHeader, context: ValidationContext): ValidationContext {
-function validate(context: ValidationContext): ValidationContext {
+function validate(context: Context): Context {
 
     const { log } = context;
-    log.artifact = Artifact.JWS;
+    log.label = label;
 
-    if(!context?.jws?.header) {
-        log.fatal('context.jws.header not found. Cannot do validations.');
-        return context;
-    }
-
-    const header = context?.jws?.header ?? {};
+    const header = context.jws.header;
 
     //
     // Header must be an Object (not Array or Null either)
     //  
-    if (!utils.isObject(header)) {
-        log.fatal("JWS header is not an Object.", ErrorCode.JWS_HEADER_ERROR);
-        return context;
+    if (!utils.is.object(header)) {
+        return log.fatal("JWS header is not an Object.", ErrorCode.JWS_HEADER_ERROR);
+        //return context;
     }
 
     //
@@ -85,7 +68,7 @@ function validate(context: ValidationContext): ValidationContext {
     //
     if (!('alg' in header)) {
         log.error("JWS header missing 'alg' property.", ErrorCode.JWS_HEADER_ERROR);
-    } else if (header.alg !== 'ES256') {
+    } else if (header.alg !== REQUIRED_HEADER_VALUES.alg) {
         log.error(`Wrong value for JWS header property 'alg'; expected: 'ES256', actual: '${header.alg}'.`, ErrorCode.JWS_HEADER_ERROR);
     }
 
@@ -94,7 +77,7 @@ function validate(context: ValidationContext): ValidationContext {
     //
     if (!('zip' in header)) {
         log.error("JWS header missing 'zip' property.", ErrorCode.JWS_HEADER_ERROR);
-    } else if (header.zip !== 'DEF') {
+    } else if (header.zip !== REQUIRED_HEADER_VALUES.zip) {
         log.error(`Wrong value for JWS header property 'zip'; expected: 'DEF', actual: '${header.zip}'.`, ErrorCode.JWS_HEADER_ERROR);
     }
 
@@ -103,12 +86,14 @@ function validate(context: ValidationContext): ValidationContext {
     //
     if (!('kid' in header)) {
         log.error("JWS header missing 'kid' property.", ErrorCode.JWS_HEADER_ERROR);
-    } else if (!b64.isBase64url(header.kid)) {
+    } else if (!utils.is.base64url(header.kid)) {
         log.error("JWS header 'kid' property not encoded as base64url.", ErrorCode.JWS_HEADER_ERROR);
     }
 
+    // TODO: check kid if options.privateKey available
+
     //
-    // Warn if additional properties are found
+    // Must not have extra properties
     //
     const expectedKeys = ['alg', 'zip', 'kid'];
     Object.keys(header)
@@ -120,4 +105,41 @@ function validate(context: ValidationContext): ValidationContext {
 
 }
 
-export default { decode, validate };
+
+function encode(context: Context): Context {
+
+    context.log.label = label;
+
+    if (validate(context).log.isFatal) return context;
+
+    context.flat.header = convert.textToBase64(JSON.stringify(context.jws.header), true) as Base64Url;
+
+    return context;
+}
+
+
+async function generate(context: Context): Promise<Context> {
+
+    const { log } = context;
+    log.label = 'JWS.Header';
+    const { privateKey } = context.options;
+
+    if (!privateKey || !key.validate.key(privateKey, true, context)) {
+        return log.fatal(`options.privateKey is required for header.kid generation and must be a JWK private key`, ErrorCode.JWS_HEADER_GENERATE_FAIL);
+    }
+
+    // generate a header is we don't have one
+    if (!context.jws.header) {
+        context.jws.header = {
+            zip: REQUIRED_HEADER_VALUES.zip,
+            alg: REQUIRED_HEADER_VALUES.alg,
+            kid: await key.computeKid(privateKey)
+        }
+        // clear the upstream encodings so there is no confusion over what header is encoded
+        context.flat.header = context.compact = context.qr = undefined;
+    }
+
+    return context;
+}
+
+export default { encode, decode, validate, generate };

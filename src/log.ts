@@ -1,14 +1,5 @@
+import Context from "./context";
 import { ErrorCode } from "./error";
-
-enum Artifact {
-    NONE = -1,
-    QR = 0,
-    SHC,
-    COMPACTJWS,
-    JWS,
-    PAYLOAD,
-    FHIRBUNDLE
-}
 
 enum LogLevel {
     DEBUG,
@@ -17,10 +8,10 @@ enum LogLevel {
     ERROR
 }
 
-interface LogEntry {
+export interface LogEntry {
     message: string,
     code: number,
-    artifact: Artifact,
+    label: string,
     fatal: boolean,
     level: number
 }
@@ -28,11 +19,13 @@ interface LogEntry {
 class Log {
 
     #entries: Array<LogEntry>;
-    #artificat: Artifact;
+    #label: string;
+    #parent: Context;
 
-    constructor() {
-        this.#artificat = Artifact.NONE;
+    constructor(context: Context) {
+        this.#label = '';
         this.#entries = [];
+        this.#parent = context;
     }
 
     // is one of the errors fatal? (fatal error stops the decoding/validation process)
@@ -40,45 +33,45 @@ class Log {
         return this.#entries.some(e => e.fatal);
     }
 
-    set artifact(artificat: Artifact) {
-        this.#artificat = artificat;
+    set label(label: string) {
+        this.#label = label;
     }
 
-    add(log: Log): Log;
-    add(message: string, level: LogLevel, code?: ErrorCode, fatal?: boolean): Log;
-    add(logItem: string | Log, level: LogLevel = LogLevel.ERROR, code: ErrorCode = ErrorCode.NOERROR, fatal: boolean = false): Log {
+    add(log: Log): Context;
+    add(message: string, level: LogLevel, code?: ErrorCode, fatal?: boolean): Context;
+    add(logItem: string | Log, level: LogLevel = LogLevel.ERROR, code: ErrorCode = ErrorCode.NOERROR, fatal: boolean = false): Context {
 
         if (logItem instanceof Log) {
             this.#entries = this.#entries.concat(logItem.entries());
         } else {
-            this.#entries.push({ message: logItem, code, fatal, level, artifact: this.#artificat });
+            this.#entries.push({ message: logItem, code, fatal, level, label: this.#label });
         }
-        return this;
+        return this.#parent;
     }
 
     // get all items at the specified logLevel and above (e.g. 'info' will return info, warnings, and errors)
     entries = (level: LogLevel = LogLevel.WARNING): Array<LogEntry> => this.#entries.filter(e => e.level >= level);
 
-    debug = (message: string): Log => this.add(message, LogLevel.DEBUG);
-    info = (message: string): Log => this.add(message, LogLevel.INFO);
-    warn = (message: string, code: ErrorCode = ErrorCode.ERROR): Log => this.add(message, LogLevel.WARNING, code);
-    error = (message: string, code: ErrorCode = ErrorCode.ERROR, fatal: boolean = false): Log => this.add(message, LogLevel.ERROR, code, fatal);
-    fatal = (message: string, code: ErrorCode = ErrorCode.ERROR): Log => this.add(message, LogLevel.ERROR, code, true);
+    debug = (message: string): Context => this.add(message, LogLevel.DEBUG);
+    info = (message: string): Context => this.add(message, LogLevel.INFO);
+    warn = (message: string, code: ErrorCode = ErrorCode.ERROR): Context => this.add(message, LogLevel.WARNING, code);
+    error = (message: string, code: ErrorCode = ErrorCode.ERROR, fatal: boolean = false): Context => this.add(message, LogLevel.ERROR, code, fatal);
+    fatal = (message: string, code: ErrorCode = ErrorCode.ERROR): Context => this.add(message, LogLevel.ERROR, code, true);
 
     //
     // Customize JSON.stringify() output
     //
-    toJSON = ()=>{
+    toJSON = () => {
         return this;
     };
 
     //
     // Customize toString() output
     //
-    toString = ()=>{
+    toString = () => {
         return JSON.stringify(this);
     };
 
 }
 
-export { Artifact, LogLevel, ErrorCode, Log };
+export { LogLevel, ErrorCode, Log };

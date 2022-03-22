@@ -1,4 +1,4 @@
-import { Log } from "./log";
+import { LogEntry } from "./log";
 
 export interface JWSHeader {
     [x: string]: string;
@@ -8,9 +8,15 @@ export interface JWSHeader {
 }
 
 export interface JWS {
-    header: JWSHeader,
-    payload: JWSPayload,
-    signature: Uint8Array
+    header?: JWSHeader,
+    payload?: JWSPayload,
+    signature?: Uint8Array,
+}
+
+export interface JWSFlat {
+    header?: Base64Url,
+    payload?: Base64Url,
+    signature?: Base64Url,
 }
 
 export interface JWSPayload {
@@ -20,33 +26,61 @@ export interface JWSPayload {
     vc: {
         type: string[],
         credentialSubject: {
+            fhirVersion: string,
             fhirBundle: FhirBundle
         },
         rid?: string
-    }
+    },
+    rid?: string
 }
 
-export type JWSCompact = string;
-
 export interface VerifiableCredential {
-    verifiableCredential : Array<JWSCompact>
+    verifiableCredential: Array<JWSCompact>
 }
 
 export interface FhirBundle {
-    text: string;
-    Coding: {display: unknown};
-    CodeableConcept: {text: unknown};
-    meta: unknown;
-    id: unknown;
-    resourceType: string,
-    type: string,
+    resourceType: 'Bundle',
+    type: 'collection',
     entry: BundleEntry[]
 }
 
-export type Resource = { 
-    resourceType: string, 
-    meta? : {security? : unknown[]} 
-} & Record<string, unknown>;
+
+export interface Resource {
+    resourceType: 'Patient' | 'Immunization',
+    meta?: { security?: unknown[] },
+}
+
+
+export interface ImmunizationResource extends Resource {
+    resourceType: "Immunization",
+    status: "completed",
+    vaccineCode: {
+        coding: {
+            system: string,
+            code: string
+        }[]
+    },
+    patient: {
+        reference: string
+    },
+    occurrenceDateTime: string,
+    performer: {
+        actor: {
+            display: string
+        }
+    }[],
+
+    lotNumber: string
+}
+
+export interface PatientResource extends Resource {
+    resourceType: "Patient",
+    name: {
+        family: string,
+        given: string[]
+    }[],
+    birthDate: string
+}
 
 export interface BundleEntry {
     id?: string,
@@ -54,7 +88,7 @@ export interface BundleEntry {
     modifierExtension?: unknown[],
     link?: string[],
     fullUrl?: string,
-    resource: Resource,
+    resource: ImmunizationResource | PatientResource,
     search?: unknown,
     request?: unknown,
     response?: unknown
@@ -68,56 +102,34 @@ export interface JWK {
     crv: string,
     x: string,
     y: string,
+    d?: string, 
     crlVersion?: number,
     x5c?: Array<string>
 }
 
 export interface KeySet {
-    keys : Array<JWK>
+    keys: Array<JWK>
 }
 
-// export interface ValidationResult {
-//     shc: string | undefined,
-//     jws_compact: string | undefined,
-//     jws: JWS | undefined,
-//     payload: JWSPayload | undefined,
-//     fhirbundle: FhirBundle | undefined,
-//     log: Array<LogEntry>,
-//     options: IOptions | undefined
-//   }
-
-// export interface ValidationResult {
-//     shc?: string,
-//     jws_compact?: string,
-//     jws?: JWS,
-//     payload?: JWSPayload,
-//     fhirbundle?: FhirBundle ,
-//     log: Log,
-//     options?: IOptions
-//   }
-  
-// export interface LogEntry {
-//     message: string,
-//     code: number,
-//     artifact: Artifact,
-//     fatal: boolean,
-//     level: number
-// }
-
-// export type Artifact = 'shc' | 'jws' | 'compactjws' | 'fhirbundle' | 'payload' | 'qr';
-
-export interface IOptions {
-    loglevel?: number  
-    validator?: number; 
-    directory?: Directory; 
+export interface Options {
+    loglevel?: number
+    validator?: number;
+    directory?: Directory;
     keys?: Array<JWK>;
-    issuers?: Array<Issuer>;    
+    issuers?: Array<Issuer>;
+    chain?: boolean,
+    privateKey?: JWK,
+    deflateLevel?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
+    fhirVersion?: string,
+    rid? : string,
+    nbf? : number,
+    iss? : string
 }
 
 export interface Issuer {
-    iss: string, 
-    name: string, 
-    website?: string, 
+    iss: string,
+    name: string,
+    website?: string,
     canonical_iss?: string
 }
 
@@ -134,4 +146,40 @@ export interface IssuerInfo {
 
 export type FilePath = string;
 
+export type JWSCompact = string;
+
 export type Base64Url = string;
+
+export type Base64 = string;
+
+export type ShcNumeric = string;
+
+export type QRUrl = string;
+
+export interface Patient {
+    name: string,
+    dob: Date
+}
+
+export interface Immunization {
+    date: Date,
+    code: string,
+    system: string,
+    performer: string
+}
+
+export interface ImmunizationRecord {
+    patient: Patient,
+    immunizations: Immunization[]
+}
+
+export interface VerificationRecord {
+    verified: boolean,
+    immunizations?: ImmunizationRecord,
+    errors?: LogEntry[]
+}
+
+export interface ResultWithErrors<T> {
+    result : T | undefined,
+    errors? : LogEntry[]
+}

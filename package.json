@@ -12,7 +12,7 @@
     "rollup": "rollup -c",
     "minify": "uglifyjs ./dist/verifysmarthealthcard.browser.js -c -m --mangle-props keep_quoted -o ./dist/verifysmarthealthcard.browser.min.js",
     "build": "npm run build:types && npm run build:js",
-    "clean": "rm -f ./dist/*",
+    "clean": "rm -f ./dist/* && rm -f ./src/*.js && rm -f ./src/*.d.ts && rm -f ./src/*.d.ts.map && rm -f ./test/*.js && rm -f ./test/*.d.ts && rm -f ./test/*.d.ts.map",
     "type-check": "tsc",
     "type-check:watch": "npm run type-check -- --watch",
     "build:types": "tsc --emitDeclarationOnly",
@@ -43,12 +43,8 @@
     "uglify-js": "^3.15.0"
   },
   "dependencies": {
-    "@nuintun/qrcode": "^3.1.1",
-    "@zxing/text-encoding": "^0.9.0",
-    "cross-fetch": "^3.1.5",
+    "axios": "^0.26.1",
     "fflate": "^0.7.3",
-    "jimp": "^0.16.1",
-    "jose": "^4.4.0",
     "qrcode": "^1.5.0"
   }
 }

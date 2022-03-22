@@ -1,27 +1,42 @@
-import { Log } from "./log";
-import { FhirBundle, IOptions, JWS, JWSPayload } from "./types";
+import { Log, LogEntry, LogLevel } from "./log";
+import { FhirBundle, Options, Issuer, JWK, JWS, JWSCompact, JWSFlat, QRUrl, ShcNumeric } from "./types";
 
-class ValidationContext {
+class Context {
 
-    public qr?: string;
-    public shc?: string;
-    public jwscompact?: string;
-    public jws?: JWS;
-    public payload?: JWSPayload;
+    // decode only 
+    public qr: QRUrl | undefined;
+
+    // encode/decode
+    public shc: ShcNumeric | undefined;
+    public compact: JWSCompact | undefined;
+    public flat: JWSFlat;
+
+    // encode only
+    public jws: JWS;
+
+    // just a pointer into jws
     public fhirbundle?: FhirBundle;
-    public log: Log;
-    public options: IOptions = {};
+
     public signature?: {
-        iss: string,
-        name: string,
-        kid: string,
+        issuer: Issuer,
+        key: JWK,
         verified: boolean
     }
 
-    constructor(log: Log, options: IOptions = {}) {
-        this.log = log;
+    public log: Log;
+    public options: Options = {};
+
+    constructor(options: Options = {}) {
+        this.log = new Log(this);
         this.options = options;
+        this.jws = {} as JWS;
+        this.flat = { header: '', payload: '', signature: '' } as JWSFlat;
+    }
+
+    get errors(): LogEntry[] | undefined {
+        const errors = this.log.entries(LogLevel.ERROR);
+        return errors.length ? errors : undefined;
     }
 }
 
-export default ValidationContext;
+export default Context;

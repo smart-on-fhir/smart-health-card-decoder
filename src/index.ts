@@ -1,77 +1,139 @@
-// This is the secret to include this polyfill with babel & rollup with tree-shaking
-// Include the lib without accessing it. It would have been nice if this was documented anywhere
-import '@zxing/text-encoding';
-import 'cross-fetch/polyfill';
-//import '@microsoft/msrcrypto/lib/IE11PromiseWrapper';
-import shc_validator from './shc'
-import qr_validator from './qr'
+import shc_validator from './shc';
+import qr_validator from './qr';
 import jws_validator from './jws';
 import jws_header from './jws.header';
-import jws_payload from './jws.payload'
-import jws_signature from './jws.signature'
-import fhir_validator from './fhir'
-import ValidationContext from './context'
-import { FhirBundle, IOptions, JWS, JWSHeader, JWSPayload } from './types'
-import { Log } from './log'
+import jws_payload from './jws.payload';
+import jws_compact from './jws.compact';
+import jws_flat from './jws.flat';
+import jws_signature from './jws.signature';
+import Context from './context';
+import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from './types';
+import signature from './signature';
+import utils from './utils';
+import fhir from './fhir';
 
-export default {
 
-    validate: {
+type JWSEncode = {
+    header: { (context: Context): Context },
+    payload: { (context: Context): Context },
+    signature: { (context: Context): Context },
+    compact: { (context: Context): Promise<Context> },
+    flat: { (context: Context): Context },
+    (context: Context): Context
+};
 
-        // shc: async function (context: ValidationContext): Promise<ValidationContext> {
-        //     return shc_validator.validate(context);
-        // },
+const jwsEncode = jws_validator.encode as JWSEncode;
+jwsEncode.header = jws_header.encode;
+jwsEncode.payload = jws_payload.encode;
+jwsEncode.signature = jws_signature.encode;
+jwsEncode.compact = jws_compact.encode;
+jwsEncode.flat = jws_flat.encode;
 
-        jws: async function (context: ValidationContext): Promise<ValidationContext> {
-            return jws_validator.validate(context);
-        },
+type JWSDecode = {
+    header: { (context: Context): Context },
+    payload: { (context: Context): Context },
+    signature: { (context: Context): Context },
+    compact: { (context: Context): Context },
+    flat: { (context: Context): Context }
+};
 
-        header: function (context: ValidationContext): ValidationContext {
-            return jws_header.validate(context);
-        },
+const jwsDecode = {} as JWSDecode;
+jwsDecode.header = jws_header.decode;
+jwsDecode.payload = jws_payload.decode;
+jwsDecode.signature = jws_signature.decode;
+jwsDecode.compact = jws_compact.decode;
+jwsDecode.flat = jws_flat.decode;
 
-        // payload: async function (context: ValidationContext): Promise<ValidationContext> {
-        //     return jws_payload.validate(context);
-        // },
+type JWSValidate = {
+    header: { (context: Context): Context },
+    payload: { (context: Context): Context },
+    signature: { (context: Context): Context },
+    compact: { (context: Context): Context },
+    flat: { (context: Context): Context },
+    (context: Context): Context
+};
 
-        // signature: function (context: ValidationContext): ValidationContext {
-        //     return jws_signature.validate(context);
-        // },
+const jwsValidate = jws_validator.validate as JWSValidate;
+jwsValidate.header = jws_header.validate;
+jwsValidate.payload = jws_payload.validate;
+jwsValidate.signature = jws_signature.validate;
+jwsValidate.compact = jws_compact.validate;
+jwsValidate.flat = jws_flat.validate;
 
-        // fhir: async function (context: ValidationContext): Promise<ValidationContext> {
-        //     return fhir_validator.validate(context);
-        // },
-    },
 
-    decode: {
+async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = {}): Promise<VerificationRecord> {
 
-        qr: async function (url: string, options?: IOptions): Promise<ValidationContext> {
-            return qr_validator.decode(url, new ValidationContext(new Log(), options));
-        },
+    const artifactType = utils.determineArtifact(code);
+    let context = new Context(options);
 
-        shc: async function (shc: string, options?: IOptions): Promise<ValidationContext> {
-            return shc_validator.decode(shc, new ValidationContext(new Log(), options));
-        },
+    switch (artifactType) {
 
-        jws: function (compactJws: string, options?: IOptions): ValidationContext {
-            return jws_validator.decode(compactJws, new ValidationContext(new Log(), options));
-        },
+        case 'qr':
+            context.qr = code;
+            context = await api.decode.qr(context);
+            //context.shc && api.validate.shc(context);
+            break;
 
-        header: function (header: string, options?: IOptions): ValidationContext {
-            return jws_header.decode(header, new ValidationContext(new Log(), options));
-        },
+        case 'shc':
+            context.shc = code;
+            context = await api.decode.shc(context);
+            //context.jwscompact && api.validate.compactJws(context);
+            break;
 
-        payload: function (payload: string, options?: IOptions): ValidationContext {
-            return jws_payload.decode(payload, new ValidationContext(new Log(), options));
-        },
+        case 'compact':
+            context.compact = code;
+            context = api.decode.jws.compact(context);
+            break;
 
-        signature: function (signature: string, options?: IOptions): ValidationContext {
-            return jws_signature.decode(signature, new ValidationContext(new Log(), options));
-        },
-
+        default:
+            context = new Context(options);
     }
+
+    const jws = context.jws;
+    jws && api.validate.jws(context);
+
+    if (!jws) {
+        return { verified: false, errors: context.errors, immunizations: undefined };
+    }
+
+    await api.signature.verify(context);
+
+    const errors = context.errors;
+    const verified = !!context.signature?.verified;
+    const immunizations = fhir.getImmunizationRecord(context);
+
+
+    return { verified, errors, immunizations };
 }
 
 
+const api = {
+
+    validate: {
+        qr: qr_validator.decode,
+        shc: shc_validator.validate,
+        jws: jwsValidate,
+    },
+
+    decode: {
+        qr: qr_validator.decode,
+        shc: shc_validator.decode,
+        jws: jwsDecode
+    },
+
+    encode: {
+        shc: shc_validator.encode,
+        jws: jwsEncode,
+        fhir: fhir.encode
+    },
+
+    signature: {
+        verify: signature.verify,
+        sign: signature.sign
+    },
+
+    verify
+}
 
 
+export default api;

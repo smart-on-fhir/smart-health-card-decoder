@@ -1,42 +1,45 @@
-import { Artifact } from "./log";
-import ValidationContext from "./context";
+import Context from "./context";
 import { ErrorCode } from "./error";
 import QRCode, { QRCodeSegment } from 'qrcode';
-import jws_validator from './jws';
+import { Options, ShcNumeric } from "./types";
+import cjws from "./jws.compact";
 
-const shcPatternWithWhitspace = /^\s*shc:\/(\d\d)+\s*$/;
-const shcPattern = /shc:\/((\d\d)+)/;
+const label = 'SHC';
+
+const shcPattern = /^shc:\/((\d\d)+)$/;
 
 
-async function validate(shc: string, context: ValidationContext): Promise<ValidationContext> {
+function validate(context: Context): Context {
 
-    const {log} = context;
-    log.artifact = Artifact.SHC;
+    const { log } = context;
+    log.label = 'SHC';
+    const shc = context.shc;
 
+    if (typeof shc !== 'string') {
+        log.fatal(`shc parameter is not a string`, ErrorCode.PARAMETER_INVALID);
+        return context;
+    }
+
+    if (!shcPattern.test(shc?.trim())) {
+        log.fatal(`shc parameter is not SHC format. Expect shc:/([0-9][0-9])+`, ErrorCode.SHC_FORMAT_ERROR);
+        return context;
+    }
 
     return context;
 }
 
 
-async function decode(shc: string, context: ValidationContext): Promise<ValidationContext> {
+async function decode(context: Context): Promise<Context> {
 
     const log = context.log;
-    log.artifact = Artifact.SHC;
+    log.label = label;
 
-    if (typeof shc !== 'string') {
-        log.fatal(`shc parameter not a string`, ErrorCode.SHC_DECODE_ERROR);
-        return context;
-    }
+    if (validate(context).log.isFatal) return context;
 
-    if (!shcPatternWithWhitspace.test(shc)) {
-        log.fatal(`Invalid SHC format. Expect shc:/([0-9][0-9])+`, ErrorCode.SHC_DECODE_ERROR);
-        return context;
-    };
+    const shc = context.shc as ShcNumeric;
 
-    context.shc = shc;
-
-    // generate a QR code as a url if we don't already have a QR code.
-    // this is a conveiniece for the caller.
+    // generate a QR code (as a url) if we don't already have a QR code.
+    // this is a conveiniece for the caller to display a QR code from a provided shc string
     context.qr = context.qr || await generateQRUrlFromSch(shc);
 
     log.debug(`QR:\n${await generateQRTextFromSch(shc)}`);
@@ -49,34 +52,44 @@ async function decode(shc: string, context: ValidationContext): Promise<Validati
         .map((c: string) => String.fromCharCode(Number.parseInt(c) + b64Offset))
         .join('');
 
-    context[`jwscompact`] = compactjws;
+    context.compact = compactjws;
 
-    jws_validator.decode(compactjws, context);
+    if (context?.options?.chain !== false) cjws.decode(context);
 
     return context;
 }
 
 
+// Note: this is async because the qr-code generator
+async function encode(context: Context): Promise<Context> {
 
-async function generateQRUrlFromSch(shc: string): Promise<string> {
+    const { log } = context;
+    log.label = label;
 
+    if (validate(context).log.isFatal) return context;
+
+    context.qr = await generateQRUrlFromSch(context.shc as string);
+
+    return context;
+}
+
+
+async function generateQRUrlFromSch(shc: ShcNumeric): Promise<string> {
     const segs: QRCodeSegment[] = [
         { data: 'shc:/', mode: 'byte' },
         { data: shc.split('/')[1], mode: 'numeric' }
     ];
-
     return QRCode.toDataURL(segs, { errorCorrectionLevel: 'L' });
 }
 
 
 async function generateQRTextFromSch(shc: string): Promise<string> {
-
     const segs: QRCodeSegment[] = [
         { data: 'shc:/', mode: 'byte' },
         { data: shc.split('/')[1], mode: 'numeric' }
     ];
-
     return QRCode.toString(segs, { errorCorrectionLevel: 'L', type: 'utf8' });
 }
 
-export default { validate, decode };
+
+export default { encode, validate, decode };
