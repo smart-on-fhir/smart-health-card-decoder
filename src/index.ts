@@ -7,11 +7,11 @@ import jws_compact from "./jws.compact.js";
 import jws_flat from "./jws.flat.js";
 import jws_signature from "./jws.signature.js";
 import Context from "./context.js";
-import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from "./types.js";
 import signature from "./signature.js";
 import utils from "./utils.js";
 import fhir from "./fhir.js";
 import { Log, LogLevel } from "./log.js";
+import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from "./types.js";
 
 
 type JWSEncode = {
@@ -135,14 +135,9 @@ const api = {
         sign: signature.sign
     },
 
-    verify,
-
-    Context,
-
-    Log,
-
-    LogLevel
+    verify
 }
 
+export {Context, Log, LogLevel};
 
 export default api;
