@@ -7,10 +7,10 @@ import jws_compact from "./jws.compact.js";
 import jws_flat from "./jws.flat.js";
 import jws_signature from "./jws.signature.js";
 import Context from "./context.js";
-import signature from "./signature.js";
+import signature_verifier from "./signature.js";
 import utils from "./utils.js";
 import fhir from "./fhir.js";
-import { Log, LogLevel } from "./log.js";
+import { ErrorCode, Log, LogLevel } from "./log.js";
 import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from "./types.js";
 
 
@@ -71,19 +71,19 @@ async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = 
 
         case 'qr':
             context.qr = code;
-            context = await api.decode.qr(context);
+            context = await decode.qr(context);
             //context.shc && api.validate.shc(context);
             break;
 
         case 'shc':
             context.shc = code;
-            context = await api.decode.shc(context);
+            context = await decode.shc(context);
             //context.jwscompact && api.validate.compactJws(context);
             break;
 
         case 'compact':
             context.compact = code;
-            context = api.decode.jws.compact(context);
+            context = decode.jws.compact(context);
             break;
 
         default:
@@ -91,14 +91,14 @@ async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = 
     }
 
     const jws = context.jws;
-    jws && api.validate.jws(context);
+    jws && validate.jws(context);
 
 
     if (!jws) {
-        return { verified: false, errors: context.errors, immunizations: undefined, issuer: ''};
+        return { verified: false, errors: context.errors, immunizations: undefined, issuer: '' };
     }
 
-    await api.signature.verify(context);
+    await signature_verifier.verify(context);
 
     const issuer = context.signature?.issuer?.name || context.signature?.issuer?.iss || '';
     const errors = context.errors;
@@ -110,34 +110,57 @@ async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = 
 }
 
 
-const api = {
+// const api = {
 
-    validate: {
-        qr: qr_validator.decode,
-        shc: shc_validator.validate,
-        jws: jwsValidate,
-    },
+//     validate: {
+//         qr: qr_validator.decode,
+//         shc: shc_validator.validate,
+//         jws: jwsValidate,
+//     },
 
-    decode: {
-        qr: qr_validator.decode,
-        shc: shc_validator.decode,
-        jws: jwsDecode
-    },
+//     decode: {
+//         qr: qr_validator.decode,
+//         shc: shc_validator.decode,
+//         jws: jwsDecode
+//     },
 
-    encode: {
-        shc: shc_validator.encode,
-        jws: jwsEncode,
-        fhir: fhir.encode
-    },
+//     encode: {
+//         shc: shc_validator.encode,
+//         jws: jwsEncode,
+//         fhir: fhir.encode
+//     },
 
-    signature: {
-        verify: signature.verify,
-        sign: signature.sign
-    },
+//     signature: {
+//         verify: signature.verify,
+//         sign: signature.sign
+//     },
 
-    verify
+//     verify
+// }
+
+export const validate = {
+    qr: qr_validator.decode,
+    shc: shc_validator.validate,
+    jws: jwsValidate
 }
 
-export {Context, Log, LogLevel};
+export const decode = {
+    qr: qr_validator.decode,
+    shc: shc_validator.decode,
+    jws: jwsDecode
+}
 
-export default api;
+export const encode = {
+    shc: shc_validator.encode,
+    jws: jwsEncode,
+    fhir: fhir.encode
+}
+
+export const signature = {
+    verify: signature_verifier.verify,
+    sign: signature_verifier.sign
+}
+
+export { Context, Log, LogLevel, ErrorCode };
+
+export default verify;
