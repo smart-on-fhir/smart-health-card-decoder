@@ -1,8 +1,8 @@
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 import QRCode, { QRCodeSegment } from 'qrcode';
-import { Options, ShcNumeric } from "./types.js";
-import cjws from "./jws.compact";
+import { ShcNumeric } from "./types.js";
+import cjws from "./jws.compact.js";
 
 const label = 'SHC';
 

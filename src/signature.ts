@@ -8,7 +8,7 @@ import convert from "./convert.js";
 import subtle from "./crypto.js";
 import download from "./download.js";
 import jws_header from "./jws.header.js";
-import jws_payload from "./jws.payload";
+import jws_payload from "./jws.payload.js";
 import jws_signature from "./jws.signature.js";
 import key from "./key.js";
 
