@@ -1,6 +1,6 @@
 import validator from '../src/index';
 import { ErrorCode } from "../src/error";
-import { checkErrors, toCorruptJson } from './utils';
+import { checkErrors, toCorruptJson } from "./utils.js";
 import signature from '../src/jws.signature';
 import { Base64Url } from '../src/types';
 import Context from '../src/context';

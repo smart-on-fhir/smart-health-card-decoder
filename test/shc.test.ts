@@ -1,5 +1,5 @@
 import { ErrorCode } from "../src/error";
-import { checkErrors } from './utils';
+import { checkErrors } from "./utils.js";
 import shc from '../src/shc';
 import Context from "../src/context";
 import { QRUrl } from "../src/types";

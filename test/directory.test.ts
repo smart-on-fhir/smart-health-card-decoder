@@ -1,8 +1,8 @@
-import vciDirectory from './vci_snapshot.json';
-import directory from '../src/directory'
-import Context from '../src/context';
-import { ErrorCode } from '../src/log';
-import { checkErrors } from './utils';
+import vciDirectory from "./vci_snapshot.json";
+import directory from '../src/directory.js'
+import Context from '../src/context.js';
+import { ErrorCode } from '../src/log.js';
+import { checkErrors } from "./utils.js";
 import { Directory, Issuer, IssuerInfo, JWK } from '../src/types';
 
 

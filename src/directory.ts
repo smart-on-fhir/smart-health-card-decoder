@@ -1,11 +1,11 @@
-import Context from "./context";
-import { ErrorCode } from "./error";
-import { LogLevel } from "./log";
-import { Issuer, Base64Url, JWK, Directory, IssuerInfo} from "./types";
-import utils from "./utils";
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
+import { LogLevel } from "./log.js";
+import { Issuer, Base64Url, JWK, Directory, IssuerInfo } from "./types.js";
+import utils from "./utils.js";
 import axios from "axios";
-import download from "./download";
-import key from "./key";
+import download from "./download.js";
+import key from "./key.js";
 
 const defaultDirectoryUrl = 'https://raw.githubusercontent.com/the-commons-project/vci-directory/main/logs/vci_snapshot.json';
 
@@ -104,34 +104,50 @@ function lookupKey(iss: string, kid: Base64Url, context: Context): { issuer: Iss
     log.label = "DIRECTORY";
 
     const directory = context.options.directory;
+    const keys = context.options.keys;
 
-    if (!directory) {
-        log.fatal(`options.directory not set`, ErrorCode.DIRECTORY_MISSING);
+    if (!directory && !keys) {
+        log.fatal(`options.directory or options.keys not set`, ErrorCode.DIRECTORY_MISSING);
         return;
     }
 
-    const issuerInfo = directory.issuerInfo;
+    if (directory) {
 
-    if (!issuerInfo || !(issuerInfo instanceof Array)) {
-        log.fatal(`directory.issuerInfo is not an Issuer & JWK []`, ErrorCode.DIRECTORY_SCHEMA_ERROR);
-        return;
+        const issuerInfo = directory.issuerInfo;
+
+        if (!issuerInfo || !(issuerInfo instanceof Array)) {
+            log.fatal(`directory.issuerInfo is not an Issuer & JWK []`, ErrorCode.DIRECTORY_SCHEMA_ERROR);
+            return;
+        }
+
+        const info = issuerInfo.find(info => info.issuer?.iss === iss);
+
+        if (!info) {
+            log.fatal(`No issuer with .iss ${iss} found in directory`, ErrorCode.DIRECTORY_ISSUER_NOT_FOUND);
+            return;
+        }
+
+        const key = info.keys.find(key => key?.kid === kid);
+
+        if (!key) {
+            log.fatal(`No key with .kid ${kid} found in issuer ${info.issuer?.name ?? iss}`, ErrorCode.DIRECTORY_KEY_NOT_FOUND);
+            return;
+        }
+
+        return { issuer: info.issuer, key };
     }
 
-    const info = issuerInfo.find(info => info.issuer?.iss === iss);
-
-    if (!info) {
-        log.fatal(`No issuer with .iss ${iss} found in directory`, ErrorCode.DIRECTORY_ISSUER_NOT_FOUND);
-        return;
-    }
-
-    const key = info.keys.find(key => key?.kid === kid);
+    // if only keys provided
+    const key = (keys as JWK[]).find(key => key?.kid === kid);
 
     if (!key) {
-        log.fatal(`No key with .kid ${kid} found in issuer ${info.issuer?.name ?? iss}`, ErrorCode.DIRECTORY_KEY_NOT_FOUND);
+        log.fatal(`No key with .kid ${kid} found in options.keys`, ErrorCode.DIRECTORY_KEY_NOT_FOUND);
         return;
     }
 
-    return { issuer: info.issuer, key };
+    context.log.warn(`Key with matching kid found. However, without a directory, an issuer cannot be matched to jwk.payload.iss`, ErrorCode.KEYS_ONLY_MATCH);
+
+    return { issuer: { iss: 'unknown', name: 'unknown' }, key };
 }
 
 
@@ -213,7 +229,7 @@ function downloadIssuerKeys(url: string): Promise<JWK[]> {
 }
 
 
-async function downloadDirectory(context: Context, url: string = defaultDirectoryUrl): Promise<Directory|undefined>{
+async function downloadDirectory(context: Context, url: string = defaultDirectoryUrl): Promise<Directory | undefined> {
     return await download<Directory>(url, context);
 }
 

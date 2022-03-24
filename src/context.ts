@@ -1,5 +1,5 @@
-import { Log, LogEntry, LogLevel } from "./log";
-import { FhirBundle, Options, Issuer, JWK, JWS, JWSCompact, JWSFlat, QRUrl, ShcNumeric } from "./types";
+import { Log, LogEntry, LogLevel } from "./log.js";
+import { FhirBundle, Options, Issuer, JWK, JWS, JWSCompact, JWSFlat, QRUrl, ShcNumeric } from "./types.js";
 
 class Context {
 
@@ -36,6 +36,11 @@ class Context {
     get errors(): LogEntry[] | undefined {
         const errors = this.log.entries(LogLevel.ERROR);
         return errors.length ? errors : undefined;
+    }
+
+    get warnings(): LogEntry[] | undefined {
+        const warnings = this.log.entries(LogLevel.WARNING);
+        return warnings.length ? warnings : undefined;
     }
 }
 

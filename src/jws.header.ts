@@ -1,9 +1,9 @@
-import { ErrorCode } from "./error";
-import utils from "./utils";
-import Context from "./context";
-import { Base64Url } from "./types";
-import convert from "./convert";
-import key from "./key";
+import { ErrorCode } from "./error.js";
+import utils from "./utils.js";
+import Context from "./context.js";
+import { Base64Url } from "./types.js";
+import convert from "./convert.js";
+import key from "./key.js";
 
 
 const label = 'JWS.header';

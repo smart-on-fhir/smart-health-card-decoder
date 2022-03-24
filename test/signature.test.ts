@@ -3,9 +3,9 @@ import signature from '../src/signature';
 import Context from '../src/context';
 import shc from '../src/shc';
 import { ErrorCode } from '../src/log';
-import { checkErrors } from './utils';
+import { checkErrors } from "./utils.js";
 import utils from '../src/utils';
-import { Directory, Issuer, IssuerInfo, JWSHeader, JWSPayload, Options } from '../src/types';
+import { Directory, Issuer, IssuerInfo, JWK, JWSHeader, JWSPayload, Options } from '../src/types';
 
 
 const EC = ErrorCode;
@@ -129,4 +129,21 @@ test('signature-verify-bad-key-alg', async () => {
     directory.issuerInfo[0].keys[0].alg = 'foo';
     await signature.verify(context);
     checkErrors(context, [[EC.SIGNATURE_INVALID], [EC.JWK_INVALID_PROPERTY]]);
+});
+
+
+// with keys[] and no directory
+
+test('signature-verify-valid-with-keys', async () => {
+    const context = cloneContext({ keys: utils.clone<JWK[]>(testDirectory.issuerInfo[0].keys) });
+    await signature.verify(context);
+    checkErrors(context, [[],[ErrorCode.KEYS_ONLY_MATCH]]);
+});
+
+test('signature-verify-valid-with-non-matching-keys', async () => {
+    const context = cloneContext({ keys: utils.clone<JWK[]>(testDirectory.issuerInfo[0].keys) });
+    const key = context.options?.keys?.[0] as JWK;
+    key.kid = key.x;
+    await signature.verify(context);
+    checkErrors(context, ErrorCode.DIRECTORY_KEY_NOT_FOUND);
 });

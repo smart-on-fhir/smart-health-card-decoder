@@ -1,9 +1,9 @@
-import { JWSPayload } from "./types";
+import { JWSPayload } from "./types.js";
 import { inflateSync } from "fflate";
-import Context from "./context";
-import { ErrorCode } from "./error";
-import utils from "./utils";
-import convert from "./convert";
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
+import utils from "./utils.js";
+import convert from "./convert.js";
 import * as fflfate from "fflate";
 
 

@@ -1,5 +1,5 @@
 import { FhirBundle } from '../src/types';
-import { checkErrors } from './utils';
+import { checkErrors } from "./utils.js";
 import Context from '../src/context';
 import fhir from '../src/fhir';
 import jws_payload from '../src/jws.payload';

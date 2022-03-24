@@ -1,9 +1,9 @@
-import Context from "./context";
-import convert from "./convert";
-import subtle from "./crypto";
-import { ErrorCode } from "./error";
-import { JWK, Base64Url } from "./types";
-import utils from "./utils";
+import Context from "./context.js";
+import convert from "./convert.js";
+import subtle from "./crypto.js";
+import { ErrorCode } from "./error.js";
+import { JWK, Base64Url } from "./types.js";
+import utils from "./utils.js";
 
 const REQUIRED_KEY_VALUES = {
     kty: 'EC',

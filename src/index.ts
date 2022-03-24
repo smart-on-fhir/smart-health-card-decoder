@@ -1,16 +1,16 @@
-import shc_validator from './shc';
-import qr_validator from './qr';
-import jws_validator from './jws';
-import jws_header from './jws.header';
-import jws_payload from './jws.payload';
-import jws_compact from './jws.compact';
-import jws_flat from './jws.flat';
-import jws_signature from './jws.signature';
-import Context from './context';
-import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from './types';
-import signature from './signature';
-import utils from './utils';
-import fhir from './fhir';
+import shc_validator from "./shc.js";
+import qr_validator from "./qr.js";
+import jws_validator from "./jws.js";
+import jws_header from "./jws.header.js";
+import jws_payload from "./jws.payload.js";
+import jws_compact from "./jws.compact.js";
+import jws_flat from "./jws.flat.js";
+import jws_signature from "./jws.signature.js";
+import Context from "./context.js";
+import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from "./types.js";
+import signature from "./signature.js";
+import utils from "./utils.js";
+import fhir from "./fhir.js";
 
 
 type JWSEncode = {
@@ -92,15 +92,15 @@ async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = 
     const jws = context.jws;
     jws && api.validate.jws(context);
 
-    const issuer = context.signature?.issuer?.name || context.signature?.issuer?.iss || '';
-    const errors = context.errors;
 
     if (!jws) {
-        return { verified: false, errors, immunizations: undefined, issuer};
+        return { verified: false, errors: context.errors, immunizations: undefined, issuer: ''};
     }
 
     await api.signature.verify(context);
 
+    const issuer = context.signature?.issuer?.name || context.signature?.issuer?.iss || '';
+    const errors = context.errors;
     const verified = !!context.signature?.verified;
     const immunizations = fhir.getImmunizationRecord(context);
 

@@ -45,11 +45,6 @@ export default [{
             file: `./dist/${name.toLowerCase()}.browser.js`,
             format: 'umd',
             name
-        },
-        {
-            file: `./dist/${name.toLowerCase()}.node.js`,
-            format: 'esm',
-            name
         }
     ]
 }];

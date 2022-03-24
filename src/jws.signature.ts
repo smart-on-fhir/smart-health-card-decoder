@@ -1,7 +1,7 @@
-import { ErrorCode } from "./error";
-import utils from "./utils";
-import Context from "./context";
-import convert from "./convert";
+import { ErrorCode } from "./error.js";
+import utils from "./utils.js";
+import Context from "./context.js";
+import convert from "./convert.js";
 
 const label = 'JWS.signature';
 

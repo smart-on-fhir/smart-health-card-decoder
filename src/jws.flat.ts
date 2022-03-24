@@ -1,9 +1,9 @@
-import Context from "./context";
-import { ErrorCode } from "./error";
-import utils from "./utils";
-import jws_header from './jws.header';
-import jws_payload from './jws.payload';
-import jws_signature from './jws.signature';
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
+import utils from "./utils.js";
+import jws_header from "./jws.header.js";
+import jws_payload from "./jws.payload.js";
+import jws_signature from "./jws.signature.js";
 
 
 const label = 'JWS.flat';

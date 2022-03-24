@@ -2,7 +2,7 @@ import validator from '../src/index';
 import { ErrorCode } from "../src/error";
 import { Base64Url, JWSHeader } from '../src/types';
 import convert from '../src/convert';
-import { checkErrors, toCorruptJson } from './utils';
+import { checkErrors, toCorruptJson } from "./utils.js";
 import header from '../src/jws.header';
 import Context from '../src/context';
 

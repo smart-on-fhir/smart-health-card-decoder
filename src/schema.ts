@@ -1,7 +1,7 @@
-import Ajv from 'ajv';
-const ajv = new Ajv({ allErrors: true });
-import ajv_errors from 'ajv-errors';
-ajv_errors(ajv);
+// import Ajv from 'ajv';
+// const ajv = new Ajv({ allErrors: true });
+// import ajv_errors from 'ajv-errors';
+// ajv_errors(ajv);
 
 
 
@@ -34,6 +34,6 @@ const jwkSchema = {
 };
 
 
-const parse = ajv.compile(jwkSchema);
+//const parse = ajv.compile(jwkSchema);
 
-export default { parse };
+export default jwkSchema;

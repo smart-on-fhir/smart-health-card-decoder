@@ -1,5 +1,5 @@
 import { ErrorCode } from "../src/error";
-import { checkErrors } from './utils';
+import { checkErrors } from "./utils.js";
 import jws_compact from '../src/jws.compact';
 import jws_flat from '../src/jws.flat';
 import shc_decoder from '../src/shc';

@@ -1,6 +1,4 @@
-import Context from './context';
-import { Log } from './log';
-import { Base64Url, BundleEntry, Directory, Immunization, ImmunizationRecord, ImmunizationResource, Options, JWS, Patient, PatientResource } from './types';
+import { Base64Url } from "./types.js";
 
 
 const base64urlAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -46,7 +44,6 @@ function isStringArray(strArray: any): strArray is string[] {
     if (!(strArray instanceof Array)) return false;
     return strArray.every(element => typeof element === 'string');
 }
-
 
 
 function determineArtifact(artifact: any): 'qr' | 'shc' | 'compact' | 'flat' | 'jws' | undefined {

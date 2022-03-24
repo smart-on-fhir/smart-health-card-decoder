@@ -1,16 +1,16 @@
-import Context from "./context";
-import { ErrorCode } from "./error";
-import fhir from "./fhir";
-import { IssuerInfo, Issuer, JWSPayload, JWK, JWSHeader } from "./types";
-import utils from "./utils";
-import directory from './directory';
-import convert from "./convert";
-import subtle from "./crypto";
-import download from "./download";
-import jws_header from './jws.header';
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
+import fhir from "./fhir.js";
+import { IssuerInfo, Issuer, JWSPayload, JWK, JWSHeader } from "./types.js";
+import utils from "./utils.js";
+import directory from "./directory.js";
+import convert from "./convert.js";
+import subtle from "./crypto.js";
+import download from "./download.js";
+import jws_header from "./jws.header.js";
 import jws_payload from "./jws.payload";
-import jws_signature from './jws.signature';
-import key from "./key";
+import jws_signature from "./jws.signature.js";
+import key from "./key.js";
 
 
 

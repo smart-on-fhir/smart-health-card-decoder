@@ -1,7 +1,7 @@
-import Context from "./context";
-import { ErrorCode } from "./error";
-import { ImmunizationRecord, Immunization, BundleEntry, Patient, PatientResource, ImmunizationResource, JWSPayload, FhirBundle } from "./types";
-import utils from "./utils";
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
+import { ImmunizationRecord, Immunization, BundleEntry, Patient, PatientResource, ImmunizationResource, JWSPayload, FhirBundle } from "./types.js";
+import utils from "./utils.js";
 
 
 const DEFAULT_FHIRVERSION = "4.0.1";

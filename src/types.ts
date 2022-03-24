@@ -1,4 +1,4 @@
-import { LogEntry } from "./log";
+import { LogEntry } from "./log.js";
 
 export interface JWSHeader {
     [x: string]: string;

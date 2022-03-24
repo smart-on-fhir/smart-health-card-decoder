@@ -1,8 +1,8 @@
-import { ErrorCode } from "./error";
-import Context from "./context";
-import shc_encoder from './shc';
-import jws_flat from './jws.flat';
-import { JWSCompact } from "./types";
+import { ErrorCode } from "./error.js";
+import Context from "./context.js";
+import shc_encoder from "./shc.js";
+import jws_flat from "./jws.flat.js";
+import { JWSCompact } from "./types.js";
 
 const label = 'JWS.compact';
 

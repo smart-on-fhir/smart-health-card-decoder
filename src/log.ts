@@ -1,5 +1,5 @@
-import Context from "./context";
-import { ErrorCode } from "./error";
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
 
 enum LogLevel {
     DEBUG,

@@ -1,12 +1,12 @@
-import { ErrorCode } from "./error";
-import Context from "./context";
-import utils from "./utils";
-import jws_header from './jws.header';
-import jws_payload from './jws.payload';
-import jws_signature from './jws.signature';
-import header from './jws.header';
-import payload from './jws.payload';
-import key from './key';
+import { ErrorCode } from "./error.js";
+import Context from "./context.js";
+import utils from "./utils.js";
+import jws_header from "./jws.header.js";
+import jws_payload from "./jws.payload.js";
+import jws_signature from "./jws.signature.js";
+import header from "./jws.header.js";
+import payload from "./jws.payload.js";
+import key from "./key.js";
 
 const label = 'JWS';
 

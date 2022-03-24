@@ -1,6 +1,6 @@
 import axios from "axios";
-import Context from "./context";
-import { ErrorCode } from "./error";
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
 
 
 const DOWNLOAD_TIMEOUT = 5000; // 5 seconds

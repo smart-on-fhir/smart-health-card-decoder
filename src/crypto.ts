@@ -1,7 +1,6 @@
-const subtle:
-    SubtleCrypto = typeof crypto === 'undefined' ?
-        /* Node */ require('crypto').webcrypto.subtle :
-        /* Browser */ crypto.subtle;
+import { webcrypto } from "crypto";
+
+const subtle = (typeof crypto === 'undefined') ? (webcrypto as unknown as { subtle: SubtleCrypto }).subtle : crypto.subtle as SubtleCrypto;
 
 
 export default subtle;
