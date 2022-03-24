@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outFile": "index.d.ts",
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": [
+    "src/**.*"
+  ]
+}

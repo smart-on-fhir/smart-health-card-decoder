@@ -14,8 +14,8 @@
     // Import non-ES modules as default imports.
     "esModuleInterop": true,
     // Ensure that .d.ts files are created by tsc, but not .js files
-    "declaration": true,
-    "declarationMap": false,
+    //"declaration": true,
+    //"declarationMap": false,
     "importHelpers": true,
     //"emitDeclarationOnly": true,
     // Ensure that Babel can safely transpile files in the TypeScript project
