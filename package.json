@@ -21,7 +21,8 @@
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline"
   },
   "files": [
-    "dist"
+    "dist",
+    "js"
   ],
   "author": "Larry Joy",
   "license": "ISC",
