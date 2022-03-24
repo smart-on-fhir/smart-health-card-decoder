@@ -11,6 +11,7 @@ import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from "./ty
 import signature from "./signature.js";
 import utils from "./utils.js";
 import fhir from "./fhir.js";
+import { Log } from "./log.js";
 
 
 type JWSEncode = {
@@ -134,7 +135,11 @@ const api = {
         sign: signature.sign
     },
 
-    verify
+    verify,
+
+    Context,
+
+    Log
 }
 
 
