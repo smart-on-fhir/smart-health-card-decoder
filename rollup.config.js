@@ -2,7 +2,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 
-const name = 'VerifySmartHealthcard';
+const name = 'smart-health-card-decoder';
 const extensions = ['.js', '.ts'];
 
 export default [{
@@ -42,7 +42,7 @@ export default [{
 
     output: [
         {
-            file: `./dist/${name.toLowerCase()}.browser.js`,
+            file: `./umd/${name.toLowerCase()}.umd.js`,
             format: 'umd',
             name
         }

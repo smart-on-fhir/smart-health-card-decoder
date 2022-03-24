@@ -1,8 +1,9 @@
 WHAT.md
 node_modules/
-js/
-dist/
+umd/
+esm/
 *.map
 .vscode
 TODO.md
 LIBRARY.md
+test.js
