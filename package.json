@@ -22,7 +22,8 @@
   },
   "files": [
     "dist",
-    "js"
+    "js/src/*.js",
+    "js/src/*.d.ts"
   ],
   "author": "Larry Joy",
   "license": "ISC",
