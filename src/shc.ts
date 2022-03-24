@@ -88,7 +88,7 @@ async function generateQRTextFromSch(shc: string): Promise<string> {
         { data: 'shc:/', mode: 'byte' },
         { data: shc.split('/')[1], mode: 'numeric' }
     ];
-    return QRCode.toString(segs, { errorCorrectionLevel: 'L', type: 'utf8' });
+    return QRCode.toString(segs, { errorCorrectionLevel: 'L', type: 'terminal' });
 }
 
 
