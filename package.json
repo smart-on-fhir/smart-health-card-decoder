@@ -5,7 +5,7 @@
   "browser": "umd/smart-health-card-decoder.umd.min.js",
   "module": "esm/index.js",
   "main": "esm/index.js",
-  "types": "index.d.ts",
+  "types": "esm/index.d.ts",
   "scripts": {
     "prepare": "npm run clean && npm run tsc && npm run rollup && npm run minify",
     "test": "echo \"Error: no test specified\" && exit 1",
