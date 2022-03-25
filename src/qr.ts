@@ -1,7 +1,7 @@
 import Context from "./context.js";
 import {Decoder} from '@nuintun/qrcode';
 import { ErrorCode } from "./error.js";
-import shc_decoder from './shc';
+import shc_decoder from './shc.js';
 
 
 async function decode(context: Context): Promise<Context> {
