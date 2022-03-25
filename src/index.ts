@@ -77,13 +77,11 @@ async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = 
         case 'qr':
             context.qr = code;
             context = await decode.qr(context);
-            //context.shc && api.validate.shc(context);
             break;
 
         case 'shc':
             context.shc = code;
             context = await decode.shc(context);
-            //context.jwscompact && api.validate.compactJws(context);
             break;
 
         case 'compact':
@@ -113,35 +111,6 @@ async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = 
 
     return { verified, errors, immunizations, issuer };
 }
-
-
-// const api = {
-
-//     validate: {
-//         qr: qr_validator.decode,
-//         shc: shc_validator.validate,
-//         jws: jwsValidate,
-//     },
-
-//     decode: {
-//         qr: qr_validator.decode,
-//         shc: shc_validator.decode,
-//         jws: jwsDecode
-//     },
-
-//     encode: {
-//         shc: shc_validator.encode,
-//         jws: jwsEncode,
-//         fhir: fhir.encode
-//     },
-
-//     signature: {
-//         verify: signature.verify,
-//         sign: signature.sign
-//     },
-
-//     verify
-// }
 
 export const validate = {
     qr: qr_validator.decode,
