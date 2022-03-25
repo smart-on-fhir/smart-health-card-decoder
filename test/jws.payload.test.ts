@@ -1,4 +1,4 @@
-import validator from '../src/index';
+import { decode, encode } from '../src/index';
 import { ErrorCode } from "../src/error";
 import { Base64Url, JWSPayload } from '../src/types';
 import convert from '../src/convert';
@@ -11,7 +11,7 @@ const validpayload = '3ZLLbtswEEV_JZhuZb2c2LF2dQr0sSgKNO0m8IKmxhYLihT4EOIa-vfOMA
 test('payload-decode-valid', async () => {
     const context = new Context();
     context.flat.payload = validpayload;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     jws_payload.validate(context);
     checkErrors(context);
 });
@@ -19,7 +19,7 @@ test('payload-decode-valid', async () => {
 test('payload-decode-valid-with-whitespace', async () => {
     const context = new Context();
     context.flat.payload = `\n   ${validpayload} \t\r\n\f `;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     jws_payload.validate(context);
     checkErrors(context);
 });
@@ -27,51 +27,51 @@ test('payload-decode-valid-with-whitespace', async () => {
 test('payload-decode-base64url-single-char', async () => {
     const context = new Context();
     context.flat.payload = `A`;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('payload-decode-undefined', async () => {
     const context = new Context();
     context.flat.payload = undefined as unknown as Base64Url;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('payload-decode-null', async () => {
     const context = new Context();
     context.flat.payload = null as unknown as Base64Url;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('payload-decode-string-empty', async () => {
     const context = new Context();
     context.flat.payload = '';
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('payload-decode-not-base64url', async () => {
     const context = new Context();
     context.flat.payload = `${validpayload}+`;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('payload-decode-as-number', async () => {
     const context = new Context();
     context.flat.payload = 0 as unknown as Base64Url;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('payload-decode-bad-json', async () => {
     const context = new Context();
     context.flat.payload = validpayload;
-    validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     context.flat.payload = convert.textToBase64(toCorruptJson(context.jws.payload as JWSPayload), true);
-    validator.decode.jws.payload(context);
+    decode.jws.payload(context);
     checkErrors(context, ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
 });
 
@@ -81,7 +81,7 @@ test('payload-decode-bad-inflate', async () => {
 
     const context = new Context();
     context.flat.payload = base64url;
-    await validator.decode.jws.payload(context);
+    decode.jws.payload(context);
 
     checkErrors(context, ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
 });
@@ -89,8 +89,8 @@ test('payload-decode-bad-inflate', async () => {
 test('payload-decode-encode-round-trip', async () => {
     const context = new Context();
     context.flat.payload = validpayload;
-    await validator.decode.jws.payload(context);
-    await validator.encode.jws.payload(context);
+    decode.jws.payload(context);
+    encode.jws.payload(context);
     checkErrors(context);
     expect(context.flat.payload).toEqual(validpayload);
 });

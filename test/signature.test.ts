@@ -1,4 +1,3 @@
-import validator from '../src/index';
 import signature from '../src/signature';
 import Context from '../src/context';
 import shc from '../src/shc';

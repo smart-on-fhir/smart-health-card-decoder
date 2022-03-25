@@ -23,7 +23,8 @@
   },
   "files": [
     "umd",
-    "esm"
+    "esm",
+    "index.d.ts"
   ],
   "author": "Larry Joy",
   "license": "ISC",

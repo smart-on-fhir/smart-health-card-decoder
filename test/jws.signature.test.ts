@@ -1,4 +1,4 @@
-import validator from '../src/index';
+import {decode} from '../src/index';
 import { ErrorCode } from "../src/error";
 import { checkErrors, toCorruptJson } from "./utils.js";
 import signature from '../src/jws.signature';
@@ -11,7 +11,7 @@ const validSignature = 'XuJ0cGQ88PmT5drNtymbZiAA7VBQIKSG2jZbljdx8Gram3gNKXjy0jsA
 test('signature-decode-valid', async () => {
     const context = new Context();
     context.flat.signature = validSignature;
-    validator.decode.jws.signature(context);
+    decode.jws.signature(context);
     signature.validate(context);
     checkErrors(context);
 });
@@ -19,35 +19,35 @@ test('signature-decode-valid', async () => {
 test('signature-decode-not-base64url', async () => {
     const context = new Context();
     context.flat.signature = `${validSignature}+`;
-    validator.decode.jws.signature(context);
+    decode.jws.signature(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('signature-decode-base64url-single-char', async () => {
     const context = new Context();
     context.flat.signature = `A`;
-    validator.decode.jws.signature(context);
+    decode.jws.signature(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('signature-decode-undefined', async () => {
     const context = new Context();
     context.flat.signature = undefined as unknown as Base64Url;
-    validator.decode.jws.signature(context);
+    decode.jws.signature(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('signature-decode-null', async () => {
     const context = new Context();
     context.flat.signature = null as unknown as Base64Url;
-    validator.decode.jws.signature(context);
+    decode.jws.signature(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('signature-decode-empty-string', async () => {
     const context = new Context();
     context.flat.signature = '';
-    validator.decode.jws.signature(context);
+    decode.jws.signature(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
@@ -55,6 +55,6 @@ test('signature-decode-empty-string', async () => {
 test('signature-decode-as-number', async () => {
     const context = new Context();
     context.flat.signature = 0 as unknown as string;
-    validator.decode.jws.signature(context);
+    decode.jws.signature(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });

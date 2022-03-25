@@ -1,7 +1,5 @@
 import Context from '../src/context';
-import validator from '../src/index';
 import jws from '../src/jws';
-import { ErrorCode } from '../src/log';
 import { checkErrors } from "./utils.js";
 import jws_compact from '../src/jws.compact';
 import jws_flat from '../src/jws.flat';

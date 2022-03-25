@@ -1,6 +1,5 @@
-import { webcrypto } from "crypto";
+const cryptoObj = (typeof crypto !== 'undefined') ? crypto : require('crypto').webcrypto;
 
-const subtle = (typeof crypto === 'undefined') ? (webcrypto as unknown as { subtle: SubtleCrypto }).subtle : crypto.subtle as SubtleCrypto;
-
+const subtle = cryptoObj.subtle;
 
 export default subtle;
