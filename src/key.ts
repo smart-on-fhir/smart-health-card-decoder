@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Context from "./context.js";
 import convert from "./convert.js";
 import subtle from "./crypto.js";

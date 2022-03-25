@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { Base64Url } from "./types.js";
 
 
@@ -48,7 +51,7 @@ function isStringArray(strArray: any): strArray is string[] {
 
 function determineArtifact(artifact: any): 'qr' | 'shc' | 'compact' | 'flat' | 'jws' | undefined {
 
-    if (/data:image\/png;base64,[0-9A-Za-z+\/]{2,}={0,2}/.test(artifact)) return 'qr';
+    if (/data:image\/(png|jpeg);base64,[0-9A-Za-z+\/]{2,}={0,2}/.test(artifact)) return 'qr';
 
     if (/shc:\/(\d\d)+/.test(artifact)) return 'shc';
 

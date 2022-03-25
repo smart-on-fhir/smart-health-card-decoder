@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 import { ImmunizationRecord, Immunization, BundleEntry, Patient, PatientResource, ImmunizationResource, JWSPayload, FhirBundle } from "./types.js";

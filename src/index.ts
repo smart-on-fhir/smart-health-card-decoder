@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import shc_validator from "./shc.js";
 import qr_validator from "./qr.js";
 import jws_validator from "./jws.js";

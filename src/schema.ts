@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 // import Ajv from 'ajv';
 // const ajv = new Ajv({ allErrors: true });
 // import ajv_errors from 'ajv-errors';

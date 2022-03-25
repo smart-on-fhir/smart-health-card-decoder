@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { Log, LogEntry, LogLevel } from "./log.js";
 import { FhirBundle, Options, Issuer, JWK, JWS, JWSCompact, JWSFlat, QRUrl, ShcNumeric } from "./types.js";
 

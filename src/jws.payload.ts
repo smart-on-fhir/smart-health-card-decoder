@@ -1,3 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+
 import { JWSPayload } from "./types.js";
 import { inflateSync } from "fflate";
 import Context from "./context.js";

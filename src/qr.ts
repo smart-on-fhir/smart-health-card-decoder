@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Context from "./context.js";
 import {Decoder} from '@nuintun/qrcode';
 import { ErrorCode } from "./error.js";
