@@ -62,10 +62,10 @@ jwsValidate.compact = jws_compact.validate;
 jwsValidate.flat = jws_flat.validate;
 
 /**
- * decodes and verifies the signature of a QR-encoded SMART health card
- * @param {string} code - Encoded smart health card
- * @param {object} [options] - additional decoder and verification options
- * @returns {Promise<VerificationRecord>} 
+ * 
+ * @param code `
+ * @param options 
+ * @returns 
  */
 async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = {}): Promise<VerificationRecord> {
 
@@ -168,4 +168,4 @@ export const signature = {
 
 export { verify, Context, Log, LogLevel, ErrorCode };
 
-//export default verify;
+export default verify;
