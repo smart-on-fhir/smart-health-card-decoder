@@ -2,20 +2,19 @@
 // Licensed under the MIT license.
 
 declare module "crypto" {
-    namespace webcrypto {
-      const subtle: SubtleCrypto;
-    }
+  namespace webcrypto {
+    const subtle: SubtleCrypto;
   }
+}
 
 import nodeCrypto from 'crypto';
-import pollyFillCrypto from '../lib/msrCrypto.js';
+const subtle = nodeCrypto.webcrypto.subtle;
 
-const subtle = (
-    (typeof nodeCrypto !== 'undefined') ?
-        nodeCrypto.webcrypto.subtle :
-        (typeof crypto === 'undefined')
-            ? pollyFillCrypto.subtle :
-            crypto.subtle
-) as SubtleCrypto;
+// @rollup/plugin-replace will replace the above with this to use the browser's webCrypto
+// or a webCrypto polyfill
+//
+// import pollyFillCrypto from '../lib/msrCrypto.js';
+// const subtle = typeof crypto === 'undefined' ? pollyFillCrypto : crypto;
+//
 
 export default subtle;
