@@ -11,11 +11,10 @@ import jws_flat from "./jws.flat.js";
 import jws_signature from "./jws.signature.js";
 import Context from "./context.js";
 import signature_verifier from "./signature.js";
-import utils from "./utils.js";
 import fhir from "./fhir.js";
-import { ErrorCode, Log, LogLevel } from "./log.js";
-import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from "./types.js";
-
+import { ErrorCode, LogLevel } from "./log.js";
+import verify from "./verify.js";
+import directory from "./directory.js";
 
 type JWSEncode = {
     header: { (context: Context): Context },
@@ -64,56 +63,6 @@ jwsValidate.signature = jws_signature.validate;
 jwsValidate.compact = jws_compact.validate;
 jwsValidate.flat = jws_flat.validate;
 
-/**
- * 
- * @param code `
- * @param options 
- * @returns 
- */
-async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options = {}): Promise<VerificationRecord> {
-
-    const artifactType = utils.determineArtifact(code);
-    let context = new Context(options);
-
-    switch (artifactType) {
-
-        case 'qr':
-            context.qr = code;
-            context = await decode.qr(context);
-            break;
-
-        case 'shc':
-            context.shc = code;
-            context = await decode.shc(context);
-            break;
-
-        case 'compact':
-            context.compact = code;
-            context = decode.jws.compact(context);
-            break;
-
-        default:
-            context = new Context(options);
-    }
-
-    const jws = context.jws;
-    jws && validate.jws(context);
-
-
-    if (!jws) {
-        return { verified: false, errors: context.errors, immunizations: undefined, issuer: '' };
-    }
-
-    await signature_verifier.verify(context);
-
-    const issuer = context.signature?.issuer?.name || context.signature?.issuer?.iss || '';
-    const errors = context.errors;
-    const verified = !!context.signature?.verified;
-    const immunizations = fhir.getImmunizationRecord(context);
-
-
-    return { verified, errors, immunizations, issuer };
-}
 
 export const validate = {
     qr: qr_validator.decode,
@@ -138,6 +87,5 @@ export const signature = {
     sign: signature_verifier.sign
 }
 
-export { verify, Context, Log, LogLevel, ErrorCode };
+export { verify, Context, LogLevel, ErrorCode, directory };
 
-export default verify;

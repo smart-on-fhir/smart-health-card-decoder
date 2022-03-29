@@ -42,7 +42,7 @@ class Context {
     }
 
     get warnings(): LogEntry[] | undefined {
-        const warnings = this.log.entries(LogLevel.WARNING);
+        const warnings = this.log.entries(LogLevel.WARNING).filter(le => le.level === LogLevel.WARNING);
         return warnings.length ? warnings : undefined;
     }
 }

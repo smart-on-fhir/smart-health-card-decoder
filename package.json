@@ -7,19 +7,14 @@
   "main": "esm/index.js",
   "types": "esm/index.d.ts",
   "scripts": {
-    "prepare": "npm run clean && npm run tsc && npm run rollup && npm run minify",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "npm run build",
+    "build": "npm run clean && npm run tsc && npm run rollup && npm run minify",
+    "test": "jest",
     "tsc": "tsc",
     "tsc:index.d.ts": "tsc -p tsconfig.d.ts.json",
-    "babel": "babel ./src/index.ts --out-dir lib",
     "rollup": "rollup -c",
     "minify": "uglifyjs ./umd/smart-health-card-decoder.umd.js -c -m --mangle-props keep_quoted -o ./umd/smart-health-card-decoder.umd.min.js",
-    "build": "npm run build:types && npm run build:js",
-    "clean": "rm -fr ./umd && rm -fr ./esm && rm -f index.d.ts",
-    "type-check": "tsc",
-    "type-check:watch": "npm run type-check -- --watch",
-    "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline"
+    "clean": "rm -fr ./umd && rm -fr ./esm && rm -f index.d.ts"
   },
   "files": [
     "umd",
@@ -29,6 +24,7 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
+    "typescript": "^4.5.5",
     "@babel/cli": "^7.16.8",
     "@babel/core": "^7.16.12",
     "@babel/preset-env": "^7.16.11",
@@ -44,7 +40,6 @@
     "jest-ts-webcompat-resolver": "^1.0.0",
     "rollup": "^2.66.1",
     "ts-jest": "^27.1.3",
-    "typescript": "^4.5.5",
     "uglify-js": "^3.15.0"
   },
   "dependencies": {

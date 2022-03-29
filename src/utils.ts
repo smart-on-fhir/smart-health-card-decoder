@@ -49,16 +49,16 @@ function isStringArray(strArray: any): strArray is string[] {
 }
 
 
-function determineArtifact(artifact: any): 'qr' | 'shc' | 'compact' | 'flat' | 'jws' | undefined {
+function determineArtifact(artifact: any): 'qr' | 'shc' | 'jws.compact' | 'jws.flat' | 'jws' | undefined {
 
     if (/data:image\/(png|jpeg);base64,[0-9A-Za-z+\/]{2,}={0,2}/.test(artifact)) return 'qr';
 
     if (/shc:\/(\d\d)+/.test(artifact)) return 'shc';
 
-    if (/^\s*[0-9A-Za-z\-_]{2,}\.[0-9A-Za-z\-_]{2,}\.[0-9A-Za-z\-_]{2,}\s*$/.test(artifact)) return 'compact';
+    if (/^\s*[0-9A-Za-z\-_]{2,}\.[0-9A-Za-z\-_]{2,}\.[0-9A-Za-z\-_]{2,}\s*$/.test(artifact)) return 'jws.compact';
 
     if (is.object(artifact) && 'header' in artifact && 'payload' in artifact && 'signature' in artifact) {
-        if(is.base64url(artifact.header)) return 'flat';
+        if(is.base64url(artifact.header)) return 'jws.flat';
         return 'jws';
     }
 

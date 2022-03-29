@@ -43,7 +43,7 @@ async function decode(context: Context): Promise<Context> {
 
     // generate a QR code (as a url) if we don't already have a QR code.
     // this is a conveiniece for the caller to display a QR code from a provided shc string
-    context.qr = context.qr || await generateQRUrlFromSch(shc);
+    context.qr = await generateQRUrlFromSch(shc);
 
     log.debug(`QR:\n${await generateQRTextFromSch(shc)}`);
 

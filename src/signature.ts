@@ -33,7 +33,6 @@ async function verify(context: Context): Promise<Context> {
      * 
      */
 
-
     const { log } = context;
     log.label = 'SIGNATURE';
 
@@ -128,89 +127,6 @@ async function verify(context: Context): Promise<Context> {
      */
 
 }
-
-
-function lookupIssuer(issuers: Array<IssuerInfo>, context: Context): IssuerInfo | undefined {
-
-    const iss = context.jws.payload?.iss;
-    const kid = context.jws.header?.kid;
-
-    const issuerInfo = issuers.find(info => info.issuer.iss === iss);
-    if (!issuerInfo) {
-        context.log.debug(`Issuer with iss: ${iss} not found.`);
-        return;
-    }
-
-    const key = issuerInfo.keys.find((key: JWK) => key.kid === kid);
-    if (!key) {
-        context.log.debug(`Key with kid: ${kid} not found.`);
-        return;
-    };
-
-    return {
-        issuer: issuerInfo.issuer,
-        keys: [key]
-    };
-}
-
-
-async function setDirectory(context: Context): Promise<Array<IssuerInfo>> {
-
-    // context already has directory, return it
-    if (context.options?.directory?.issuerInfo) return Promise.resolve(context.options.directory.issuerInfo);
-
-    // context has issuers, download keys for each, build directory
-    if (context.options?.issuers) {
-
-        const ii: Array<IssuerInfo> = [];
-
-        context.options?.issuers.forEach(async (issuer: Issuer) => {
-            ii.push({
-                issuer,
-                keys: await downloadIssuerKeys(issuer.iss, context) ?? []
-            });
-        });
-
-        return ii;
-    }
-
-    // context has keys, get iss and build directory with single item
-    if (context.options?.keys) {
-        return [
-            {
-                issuer: {
-                    iss: context.jws.payload?.iss ?? '',
-                    name: context.jws.payload?.iss ?? '',
-                },
-                keys: context.options?.keys
-            }
-        ];
-    }
-
-    // nothing supplied, lookup iss, download keys, build directory
-    return [{
-        issuer: {
-            iss: context.jws.payload?.iss ?? '',
-            name: context.jws.payload?.iss ?? '',
-        },
-        keys: await downloadIssuerKeys(context.jws.payload?.iss ?? '', context) ?? []
-    }];
-
-}
-
-
-async function downloadPublicKeys(payload: JWSPayload, context: Context): Promise<JWK[] | undefined> {
-    const issuerURL = payload.iss;
-    const jwkURL = `${issuerURL}/.well-known/jwks.json`;
-    return await download<JWK[]>(jwkURL, context);
-}
-
-
-async function downloadIssuerKeys(url: string, context: Context): Promise<JWK[] | undefined> {
-    const jwkURL = `${url}/.well-known/jwks.json`;
-    return download<JWK[]>(jwkURL, context);
-}
-
 
 async function checkSignature(jws: string, signature: Uint8Array, publicKey: JWK, context: Context): Promise<boolean> {
 

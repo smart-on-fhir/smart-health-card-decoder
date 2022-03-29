@@ -105,7 +105,7 @@ export interface JWK {
     crv: string,
     x: string,
     y: string,
-    d?: string, 
+    d?: string,
     crlVersion?: number,
     x5c?: Array<string>
 }
@@ -115,18 +115,20 @@ export interface KeySet {
 }
 
 export interface Options {
-    loglevel?: number
     validator?: number;
     directory?: Directory;
     keys?: Array<JWK>;
     issuers?: Array<Issuer>;
     chain?: boolean,
+    encode?: {
+        fhirVersion?: string,
+        rid?: string,
+        nbf?: number,
+        iss?: string,
+        deflateLevel?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
+    },
     privateKey?: JWK,
-    deflateLevel?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
-    fhirVersion?: string,
-    rid? : string,
-    nbf? : number,
-    iss? : string
+    reconstructQrCode?: boolean
 }
 
 export interface Issuer {
@@ -165,9 +167,11 @@ export interface Patient {
 }
 
 export interface Immunization {
+    dose: number,
     date: Date,
-    code: string,
-    system: string,
+    //code: CvxCode,
+    //system: string,
+    manufacturer: string,
     performer: string
 }
 
@@ -180,10 +184,33 @@ export interface VerificationRecord {
     verified: boolean,
     issuer: string,
     immunizations?: ImmunizationRecord,
-    errors?: LogEntry[]
+    errors?: LogEntry[],
+    qr?: QRUrl
 }
 
 export interface ResultWithErrors<T> {
-    result : T | undefined,
-    errors? : LogEntry[]
+    result: T | undefined,
+    errors?: LogEntry[]
+}
+
+export interface CvxCode {
+    name: string,
+    description: string,
+    cvx: number,
+    manufacturer: string,
+    mvx: string,
+    mvxStatus: string,
+    status: string,
+    updated: Date,
+}
+
+export interface DecodeResult {
+    errors?: LogEntry[],
+    warnings?: LogEntry[],
+    shc?: ShcNumeric,
+    compact?: JWSCompact,
+    flat?: JWSFlat,
+    jws?: JWS,
+    fhir?: FhirBundle,
+    immunizations?: ImmunizationRecord
 }

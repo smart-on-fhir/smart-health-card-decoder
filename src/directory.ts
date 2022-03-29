@@ -9,12 +9,11 @@ import utils from "./utils.js";
 import axios from "axios";
 import download from "./download.js";
 import key from "./key.js";
-
-const defaultDirectoryUrl = 'https://raw.githubusercontent.com/the-commons-project/vci-directory/main/logs/vci_snapshot.json';
+import constants from "./constants.js";
 
 
 let _axios = axios.create({
-    timeout: 5000
+    timeout: constants.DOWNLOAD_TIMEOUT
 });
 
 
@@ -47,7 +46,6 @@ async function validate(directory: any, context: Context): Promise<boolean> {
 
     return result;
 }
-
 
 
 async function validateIssuerInfo(issuerInfo: any, context: Context): Promise<boolean> {
@@ -218,22 +216,13 @@ async function getKeys(issuers: Issuer[], context: Context): Promise<IssuerInfo[
 }
 
 
-function downloadIssuerKeys(url: string): Promise<JWK[]> {
-    const jwkURL = `${url}/.well-known/jwks.json`;
-
-    return _axios.get(jwkURL)
-        .then(response => {
-            return response.data.keys as JWK[];
-        })
-        .catch(error => {
-            throw error;
-        });
-
+async function downloadIssuerKeys(url: string): Promise<JWK[]> {
+    return await download<JWK[]>(`${url}/.well-known/jwks.json`).catch(error => { throw error });
 }
 
 
-async function downloadDirectory(context: Context, url: string = defaultDirectoryUrl): Promise<Directory | undefined> {
-    return await download<Directory>(url, context);
+async function downloadDirectory(url: string = constants.VCI_DIRECTORY_DAILY_SNAPSHOT_URL): Promise<Directory> {
+    return await download<Directory>(url).catch(error => { throw error });
 }
 
 

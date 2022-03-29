@@ -1,8 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import c from 'crypto';
+declare module "crypto" {
+    namespace webcrypto {
+      const subtle: SubtleCrypto;
+    }
+  }
 
-const subtle = (typeof c?.webcrypto !== 'undefined') ? (c.webcrypto as unknown as {subtle: SubtleCrypto}).subtle : crypto.subtle;
+import nodeCrypto from 'crypto';
+import pollyFillCrypto from '../lib/msrCrypto.js';
+
+const subtle = (
+    (typeof nodeCrypto !== 'undefined') ?
+        nodeCrypto.webcrypto.subtle :
+        (typeof crypto === 'undefined')
+            ? pollyFillCrypto.subtle :
+            crypto.subtle
+) as SubtleCrypto;
 
 export default subtle;

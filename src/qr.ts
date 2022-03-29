@@ -2,19 +2,19 @@
 // Licensed under the MIT license.
 
 import Context from "./context.js";
-import {Decoder} from '@nuintun/qrcode';
+import { Decoder } from '@nuintun/qrcode';
 import { ErrorCode } from "./error.js";
 import shc_decoder from './shc.js';
 
 
 async function decode(context: Context): Promise<Context> {
 
-    const {log} = context;
+    const { log } = context;
     log.label = 'QR';
 
     const decoder = new Decoder();
 
-    if(typeof context.qr !== 'string') {
+    if (typeof context.qr !== 'string') {
         return context;
     }
 
@@ -40,7 +40,7 @@ function validate(context: Context): Context {
     const log = context.log;
     log.label = 'QR';
 
-    
+
 
     return context;
 }

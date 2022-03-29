@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { FhirBundle } from '../src/types';
 import { checkErrors } from "./utils.js";
 import Context from '../src/context';
@@ -12,7 +15,7 @@ const privateKey = { "kty": "EC", "kid": "d630duSMWmVfmOtrMKZX6izJfcampjK1h0D4jr
 test('fhir-encode-valid', async () => {
     const context = new Context();
     context.fhirbundle = validFhir;
-    context.options = {
+    context.options.encode = {
         //privateKey : privateKey,
         iss: "https://spec.smarthealth.cards/examples/issuer"
     }
@@ -25,24 +28,26 @@ test('fhir-encode-valid-with-options', async () => {
     const context = new Context();
     context.fhirbundle = validFhir;
     context.options = {
-        iss: "https://spec.smarthealth.cards/examples/issuer",
-        fhirVersion: "1.0.0",
-        nbf: Date.parse('1/1/2020'),
-        rid: "MKyCxh7p6uQ"  // TODO: does rid have special encoding?
+        encode: {
+            iss: "https://spec.smarthealth.cards/examples/issuer",
+            fhirVersion: "1.0.0",
+            nbf: Date.parse('1/1/2020'),
+            rid: "MKyCxh7p6uQ"  // TODO: does rid have special encoding?
+        }
     }
     fhir.encode(context);
     jws_payload.validate(context);
-    expect(context.jws.payload?.iss).toEqual(context.options.iss);
-    expect(context.jws.payload?.rid).toEqual(context.options.rid);
-    expect(context.jws.payload?.nbf).toEqual(context.options.nbf);
-    expect(context.jws.payload?.vc.credentialSubject.fhirVersion).toEqual(context.options.fhirVersion);
+    expect(context.jws.payload?.iss).toEqual(context.options?.encode?.iss);
+    expect(context.jws.payload?.rid).toEqual(context.options?.encode?.rid);
+    expect(context.jws.payload?.nbf).toEqual(context.options?.encode?.nbf);
+    expect(context.jws.payload?.vc.credentialSubject.fhirVersion).toEqual(context.options?.encode?.fhirVersion);
     checkErrors(context);
 });
 
 test('fhir-encode-valid-with-invalid-options', async () => {
     const context = new Context();
     context.fhirbundle = validFhir;
-    context.options = {
+    context.options.encode = {
         iss: {} as unknown as string,
         fhirVersion: "41",
         nbf: '1/1/2020' as unknown as number,

@@ -8,10 +8,7 @@ const extensions = ['.js', '.ts'];
 export default [{
     input: './src/index.ts',
 
-    // Specify here external modules which you don't want to include in your bundle (for instance: 'lodash', 'moment' etc.)
-    // https://rollupjs.org/guide/en#external-e-external
-    external: [],
-
+    external: ['crypto'],
 
     plugins: [
         // Allows node_modules resolution
@@ -32,7 +29,7 @@ export default [{
             exclude: [
 
                 // exclude fflate as it appears es5
-                'node_modules\/(?!(fflate)\/).*', 
+                'node_modules\/(?!(fflate)\/).*',
 
                 // we exclude core-js or we get a bunch of circular dependencies
                 /\/core-js\//

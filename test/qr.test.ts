@@ -1,8 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Context from '../src/context';
 import qr from '../src/qr';
 import { checkErrors } from './utils';
 
-test('qr-decode-valid', async () => {
+// TODO: enable once we support qr image decoding
+test.skip('qr-decode-valid', async () => {
     const context = new Context();
     context.qr = validQr;
     await qr.decode(context);

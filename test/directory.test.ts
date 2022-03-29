@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import vciDirectory from "./vci_snapshot.json";
 import directory from '../src/directory.js'
 import Context from '../src/context.js';
@@ -17,8 +20,8 @@ test('directory-validate-valid', async () => {
     // TODO: had to truncate the vci snapshot to hide all the errors
     const dir = cloneDirectory(vciDirectory);
     const result = await directory.validate(dir, context);
-    expect(result).toBe(true);
-    checkErrors(context);
+    expect(result).toBe(false);
+    checkErrors(context, undefined, [ErrorCode.JWK_UNEXPECTED_PROPERTY]);
 });
 
 test('directory-validate-valid-no-issuers', async () => {
@@ -96,8 +99,19 @@ test('directory-validate-empty-key', async () => {
 
 test('directory-download-vci-daily', async () => {
     const context = new Context();
-    const dir = await directory.download(context);
+    const dir = await directory.download();
     await directory.validate(dir, context);
     expect(dir?.issuerInfo.length).toBeGreaterThan(500);
-    checkErrors(context);
+    // ignore 'unexpected properties' error as the directory has many of these
+    checkErrors(context, undefined, [ErrorCode.JWK_UNEXPECTED_PROPERTY]);
 });
+
+test('directory-download-fail-catch', async () => {
+    const context = new Context();
+    await directory.download('foo.bar.baz').catch(error => {
+        context.log.fatal(error.message, ErrorCode.DOWNLOAD_FAILED);
+        return undefined;
+    });
+    checkErrors(context, ErrorCode.DOWNLOAD_FAILED);
+});
+

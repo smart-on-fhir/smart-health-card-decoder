@@ -1,8 +1,13 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import Context from "../src/context";
 import { ErrorCode } from "../src/error";
-import { LogLevel } from "../src/log";
 
-function checkErrors(context: Context, expected: ErrorCode[][] | ErrorCode[] | ErrorCode = [[], []]): void {
+
+type ExpectedErrors = ErrorCode[][] | ErrorCode[] | ErrorCode;
+
+function checkErrors(context: Context, expected: ExpectedErrors = [[], []], ignore: ErrorCode[] = []): void {
 
     let _expected: ErrorCode[][];
 
@@ -21,13 +26,13 @@ function checkErrors(context: Context, expected: ErrorCode[][] | ErrorCode[] | E
     let errors = _expected[0].map(code => `ERROR: ${code} ${ErrorCode[code]}`);
     let warnings = _expected[1].map(code => `WARNING: ${code} ${ErrorCode[code]}`);
 
-    const [actualErrors, actualWarnings] = [
-        context.log.entries(LogLevel.ERROR).map(le => `ERROR: ${le.code} ${ErrorCode[le.code]}`),
-        context.log.entries(LogLevel.WARNING).filter(le => le.level === LogLevel.WARNING).map(le => `WARNING: ${le.code} ${ErrorCode[le.code]}`)
+
+    let [actualErrors, actualWarnings] = [
+        (context.errors ?? []).filter(le => !ignore.includes(le.code)).map(le => `ERROR: ${le.code} ${ErrorCode[le.code]}`),
+        (context.warnings ?? []).filter(le => !ignore.includes(le.code)).map(le => `WARNING: ${le.code} ${ErrorCode[le.code]}`)
     ];
 
     expect(errors.concat(warnings).sort()).toEqual(actualErrors.concat(actualWarnings).sort());
-    //expect(warnings.sort()).toEqual(actualWarnings.sort());
 }
 
 function toCorruptJson(object: object): string {

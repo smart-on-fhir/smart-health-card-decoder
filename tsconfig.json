@@ -1,38 +1,23 @@
 {
   "compilerOptions": {
-    // Target latest version of ECMAScript.
-    // "target": "ESNext",
-    // "module" :"ESNext",
-    // Search under node_modules for non-relative imports.
-    //"moduleResolution": "node",
-    // Process & infer types from .js files.
+    
     "allowJs": true,
-    // Don't emit; allow Babel to transform files.
-    //"noEmit": true,
-    // Enable strictest settings like strictNullChecks & noImplicitAny.
     "strict": true,
-    // Import non-ES modules as default imports.
     "esModuleInterop": true,
-    // Ensure that .d.ts files are created by tsc, but not .js files
     "declaration": true,
-    //"declarationMap": false,
     "importHelpers": true,
-    //"emitDeclarationOnly": true,
-    // Ensure that Babel can safely transpile files in the TypeScript project
     "isolatedModules": true,
     "resolveJsonModule": true,
     "outDir": "esm",
 
     // Transpile to Node-14 compatible JS
     "allowSyntheticDefaultImports": true,
-    //"lib": ["ES2020"],
     "module": "ES2020",
     "moduleResolution": "node",
     "target": "ES2020"
     
   },
   "include": [
-    "src/**.*", // <-- change this to where your source files are
-    //"test"
+    "src/**.*" 
   ]
 }

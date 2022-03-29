@@ -119,7 +119,7 @@ function encode(context: Context): Context {
 
     const bytes = convert.textToBytes(json);
 
-    const deflated = fflfate.deflateSync(new Uint8Array(bytes), { level: context.options?.deflateLevel || 6 });
+    const deflated = fflfate.deflateSync(new Uint8Array(bytes), { level: context.options?.encode?.deflateLevel || 6 });
 
     context.flat.payload = convert.bytesToBase64(deflated, true);
 
