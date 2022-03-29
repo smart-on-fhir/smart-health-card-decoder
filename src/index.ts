@@ -87,5 +87,6 @@ export const signature = {
     sign: signature_verifier.sign
 }
 
-export { verify, Context, LogLevel, ErrorCode, directory };
+export default { verify, Context, LogLevel, ErrorCode, directory };
 
+export { verify, Context, LogLevel, ErrorCode, directory };

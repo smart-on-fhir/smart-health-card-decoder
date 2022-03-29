@@ -33,43 +33,44 @@ const testDirectory = {
 
 
 test('verify-decode-jws-compact-0', async () => {
-    const verificationRecord = await verify(validCjws, { directory: testDirectory });
-    expect(verificationRecord.record).toMatchObject(testVerificationRecord);
+    const context = await verify(validCjws, { directory: testDirectory });
+    expect(context.card).toMatchObject(immunizationCard);
 });
 
 test('verify-decode-shc', async () => {
-    const verificationRecord = await verify(validShc, { directory: testDirectory });
-    expect(verificationRecord.record).toMatchObject(testVerificationRecord);
+    const context = await verify(validShc, { directory: testDirectory });
+    expect(context.card).toMatchObject(immunizationCard);
 });
 
 test('verify-decode-jws-compact-altered-signature', async () => {
     const badSignature = validCjws.replace('.qI', '.qJ');
-    const verificationRecord = await verify(badSignature, { directory: testDirectory });
-    expect(verificationRecord.record).toMatchObject({ ...testVerificationRecord, verified: false });
+    const context = await verify(badSignature, { directory: testDirectory });
+    expect(context.card).toMatchObject({ ...immunizationCard, verified: false });
 });
 
 
-const testVerificationRecord = {
+const immunizationCard = {
     verified: true,
-    immunizations: {
-        patient: {
-            name: "Anyperson, John B.",
-            dob: new Date("1951-01-20T00:00:00.000Z")
-        },
-        immunizations: [
-            {
-                dose: 1,
-                date: new Date("2021-01-01T00:00:00.000Z"),
-                manufacturer: "Moderna US.",
-                performer: "ABC General Hospital"
-            },
-            {
-                dose: 2,
-                date: new Date("2021-01-29T00:00:00.000Z"),
-                manufacturer: "Moderna US.",
-                performer: "ABC General Hospital"
-            }
-        ]
+
+    patient: {
+        name: "Anyperson, John B.",
+        dob: new Date("1951-01-20T00:00:00.000Z")
     },
+
+    immunizations: [
+        {
+            dose: 1,
+            date: new Date("2021-01-01T00:00:00.000Z"),
+            manufacturer: "Moderna US.",
+            performer: "ABC General Hospital"
+        },
+        {
+            dose: 2,
+            date: new Date("2021-01-29T00:00:00.000Z"),
+            manufacturer: "Moderna US.",
+            performer: "ABC General Hospital"
+        }
+    ],
+
     issuer: "smarthealth.cards"
 }

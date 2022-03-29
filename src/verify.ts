@@ -3,18 +3,17 @@
 
 import Context from "./context.js";
 import signature_verifier from "./signature.js";
-import utils from "./utils.js";
-import fhir from "./fhir.js";
-import { Options, JWSCompact, QRUrl, ShcNumeric, VerificationRecord } from "./types.js";
-import { decode, validate } from "./index.js";
-
+import { Options, JWSCompact, QRUrl, ShcNumeric, JWSFlat } from "./types.js";
+import { validate } from "./index.js";
+import artifactDecoder from './decode.js';
+import card from './card.js';
 
 /**
  * Decodes and validates an encoded __SMART Health Card__:
  * 
  * @param {string} code - encoded SMART Health Card in one of the following forms:
  * 
- *    _ShcNumeric_ (string) : `'shc:/5676290952432060346029243740...'`
+ *    _ShcNumeric_ (string) : `'shc:/5676290952432060346029243740...'`c
  * 
  *    _QRUrl_ (string) : `'data:image/png;base64,iVBORw0KGoAAAANS...'`
  * 
@@ -61,57 +60,22 @@ import { decode, validate } from "./index.js";
  * 
  * @async
  */
-async function verify(code: ShcNumeric | QRUrl | JWSCompact, options: Options): Promise<{ record: VerificationRecord, qr: QRUrl }> {
+async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, options: Options): Promise<Context> {
 
-    const artifactType = utils.determineArtifact(code);
-    let context = new Context(options);
-
-    switch (artifactType) {
-
-        case 'qr':
-            context.qr = code;
-            context = await decode.qr(context);
-            break;
-
-        case 'shc':
-            context.shc = code;
-            context = await decode.shc(context);
-            break;
-
-        case 'jws.compact':
-            context.compact = code;
-            context = decode.jws.compact(context);
-            break;
-
-        default:
-            context = new Context(options);
-    }
+    const context = await artifactDecoder(code, options);
 
     const jws = context.jws;
     jws && validate.jws(context);
 
-
     if (!jws) {
-        return { record: { verified: false, errors: context.errors, immunizations: undefined, issuer: '' }, qr: '' };
+        return context;
     }
 
     await signature_verifier.verify(context);
 
-    const issuer = context.signature?.issuer?.name || context.signature?.issuer?.iss || '';
-    const errors = context.errors;
-    const verified = !!context.signature?.verified;
-    const immunizations = fhir.getImmunizationRecord(context);
+    context.card = card(context);
 
-
-    return {
-        record: {
-            verified,
-            errors,
-            immunizations,
-            issuer
-        },
-        qr: context.qr ?? ''
-    }
-
+    return context;
 }
+
 export default verify;

@@ -26,28 +26,23 @@ function validate(context: Context): Context {
     // payload must be an Object
     //  
     if (!utils.is.object(payload)) {
-        log.fatal("JWS payload is not an Object.", ErrorCode.JWS_PAYLOAD_ERROR);
-        return context;
+        return log.fatal("JWS payload is not an Object.", ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
     if (!('iss' in payload)) {
-        log.fatal(`JWS Payload missing 'issuer' ('iss') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
-        return context;
+        return log.fatal(`JWS Payload missing 'issuer' ('iss') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
     if (!('nbf' in payload)) {
-        log.fatal(`JWS Payload missing 'not before' ('nbf') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
-        return context;
+        return log.fatal(`JWS Payload missing 'not before' ('nbf') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
     if (!('vc' in payload)) {
-        log.fatal(`JWS Payload missing 'verifiable credential' ('vc') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
-        return context;
+        return log.fatal(`JWS Payload missing 'verifiable credential' ('vc') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
     if ('exp' in payload) {
-        log.fatal(`JWS Payload missing 'expiration' ('exp') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
-        return context;
+        return log.fatal(`JWS Payload missing 'expiration' ('exp') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
     return context;
@@ -64,8 +59,8 @@ function decode(context: Context): Context {
     // payload param must be base64url 
     //    
     if (!utils.is.base64url(payload)) {
-        log.fatal(`payload parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
-        return context;
+        return log.fatal(`payload parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
+        //return context;
     };
     log.debug(`payload base64url:\n ${payload}`);
 
@@ -82,8 +77,8 @@ function decode(context: Context): Context {
     try {
         inflatedUint8 = inflateSync(uint8Array);
     } catch (error) {
-        log.fatal(`failed to inflate payload ${(error as Error).toString()}`, ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
-        return context;
+        return log.fatal(`failed to inflate payload ${(error as Error).toString()}`, ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
+        //return context;
     }
 
     //
@@ -97,8 +92,8 @@ function decode(context: Context): Context {
     const jwsPayload = utils.parseJson<JWSPayload>(json);
 
     if (!jwsPayload) {
-        log.fatal('JWS Payload could not be decoded as JSON.', ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
-        return context;
+        return log.fatal('JWS Payload could not be decoded as JSON.', ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
+        //return context;
     }
 
     context.jws.payload = jwsPayload;

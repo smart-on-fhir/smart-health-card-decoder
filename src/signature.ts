@@ -144,7 +144,7 @@ async function checkSignature(jws: string, signature: Uint8Array, publicKey: JWK
     });
 
     const validated = !!cryptoKey && await subtle.verify({ name: "ECDSA", hash: { name: "SHA-256" } }, cryptoKey, signature, jwsBytes).catch((error: Error) => {
-        log.fatal(`subtle.verify() error ${error.toString()}`, ErrorCode.CRYPTO_FAILURE);
+        log.error(`subtle.verify() error ${error.toString()}`, ErrorCode.CRYPTO_FAILURE);
         return false;
     });
 

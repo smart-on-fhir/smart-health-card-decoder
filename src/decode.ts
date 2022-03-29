@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import Context from "./context";
-import { ShcNumeric, QRUrl, JWSCompact, Options, JWSFlat, Base64Url, DecodeResult } from "./types";
+import { ShcNumeric, QRUrl, JWSCompact, Options, JWSFlat, Base64Url } from "./types";
 import utils from "./utils";
 import qr_decoder from './qr.js';
 import shc_decoder from './shc.js';
@@ -12,20 +12,19 @@ import jws_header from './jws.header.js';
 import jws_payload from './jws.payload.js';
 import jws_signature from './jws.signature.js';
 import { ErrorCode } from "./error";
-import fhir from "./fhir";
 
 
 type artifacts = 'qr' | 'shc' | 'jws.compact' | 'jws.flat' | 'jws.header' | 'jws.payload' | 'jws.signature';
 
 const validTypes = ['qr', 'shc', 'jws.compact', 'jws.flat', 'jws.header', 'jws.payload', 'jws.signature'];
 
-async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat): Promise<DecodeResult>
-async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, options: Options): Promise<DecodeResult>
-async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, type: artifacts): Promise<DecodeResult>
-async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, type: artifacts, options: Options): Promise<DecodeResult>
-async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, artifactOrOptions?: artifacts | Options, options?: Options): Promise<DecodeResult> {
+async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat): Promise<Context>
+async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, options: Options): Promise<Context>
+async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, type: artifacts): Promise<Context>
+async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, type: artifacts, options: Options): Promise<Context>
+async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, artifactOrOptions?: artifacts | Options, options?: Options): Promise<Context> {
 
-    const context = new Context();
+
 
     let artifact = undefined;
     options = options || {};
@@ -37,6 +36,8 @@ async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, artifactO
     }
 
     artifact = artifact || utils.determineArtifact(code);
+
+    const context = new Context(options);
 
     if (artifact && !validTypes.includes(artifact)) {
         return context.log.fatal(`Parameter 'type' is not a valid value (${validTypes.join('|')})`, ErrorCode.PARAMETER_INVALID);
@@ -83,21 +84,7 @@ async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, artifactO
             context.log.fatal(`Cannot determine artifact type from code`)
     }
 
-
-    const decodeResult : DecodeResult = {};
-
-    context.errors && (decodeResult.errors = context.errors);
-    context.warnings && (decodeResult.warnings = context.warnings);
-    context.shc && (decodeResult.shc = context.shc);
-    context.compact && (decodeResult.compact = context.compact);
-    context.flat && (decodeResult.flat = context.flat);
-    context.jws && (decodeResult.jws = context.jws);
-    context.fhirbundle && (decodeResult.fhir = context.fhirbundle);
-    context.fhirbundle && (decodeResult.immunizations = fhir.getImmunizationRecord(context));
-
-    return decodeResult;
-
+    return context;
 }
-
 
 export default decode;

@@ -9,7 +9,7 @@ import jws_payload from "./jws.payload.js";
 import jws_signature from "./jws.signature.js";
 import header from "./jws.header.js";
 import payload from "./jws.payload.js";
-import key from "./key.js";
+
 
 const label = 'JWS';
 
@@ -25,7 +25,6 @@ function validate(context: Context): Context {
     //  
     if (!utils.is.object(jws)) {
         return log.fatal("JWS is not an Object.", ErrorCode.PARAMETER_INVALID);
-        //return context;
     }
 
     if (!('header' in jws)) {

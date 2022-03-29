@@ -63,7 +63,6 @@ function validate(context: Context): Context {
     //  
     if (!utils.is.object(header)) {
         return log.fatal("JWS header is not an Object.", ErrorCode.JWS_HEADER_ERROR);
-        //return context;
     }
 
     //
@@ -120,7 +119,7 @@ function encode(context: Context): Context {
     return context;
 }
 
-
+// Creates a new JWS header given a user-supplied private key
 async function generate(context: Context): Promise<Context> {
 
     const { log } = context;

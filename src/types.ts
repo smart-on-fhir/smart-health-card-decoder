@@ -169,23 +169,18 @@ export interface Patient {
 export interface Immunization {
     dose: number,
     date: Date,
-    //code: CvxCode,
-    //system: string,
     manufacturer: string,
     performer: string
 }
 
-export interface ImmunizationRecord {
+export interface ImmunizationRecord{
     patient: Patient,
     immunizations: Immunization[]
 }
 
-export interface VerificationRecord {
+export interface ImmunizationCard extends ImmunizationRecord {
     verified: boolean,
-    issuer: string,
-    immunizations?: ImmunizationRecord,
-    errors?: LogEntry[],
-    qr?: QRUrl
+    issuer: string
 }
 
 export interface ResultWithErrors<T> {
@@ -202,15 +197,4 @@ export interface CvxCode {
     mvxStatus: string,
     status: string,
     updated: Date,
-}
-
-export interface DecodeResult {
-    errors?: LogEntry[],
-    warnings?: LogEntry[],
-    shc?: ShcNumeric,
-    compact?: JWSCompact,
-    flat?: JWSFlat,
-    jws?: JWS,
-    fhir?: FhirBundle,
-    immunizations?: ImmunizationRecord
 }

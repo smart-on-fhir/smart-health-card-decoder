@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { Log, LogEntry, LogLevel } from "./log.js";
-import { FhirBundle, Options, Issuer, JWK, JWS, JWSCompact, JWSFlat, QRUrl, ShcNumeric } from "./types.js";
+import { FhirBundle, Options, Issuer, JWK, JWS, JWSCompact, JWSFlat, QRUrl, ShcNumeric, ImmunizationCard } from "./types.js";
 
 class Context {
 
@@ -45,6 +45,8 @@ class Context {
         const warnings = this.log.entries(LogLevel.WARNING).filter(le => le.level === LogLevel.WARNING);
         return warnings.length ? warnings : undefined;
     }
+
+    public card : ImmunizationCard | undefined
 }
 
 export default Context;
