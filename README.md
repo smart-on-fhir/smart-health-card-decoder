@@ -22,28 +22,26 @@ console.log(JSON.stringify(result.card));
 
 /* 
   {
-    "verified": true,
-    "immunizations": {
+      "verified": true,
+      "issuer": "smarthealth.cards",
       "patient": {
-        "name": "Anyperson, John B.",
-        "dob": "1951-01-20T00:00:00.000Z"
+          "name": "Anyperson, John B.",
+          "dob": "1951-01-20T00:00:00.000Z"
       },
       "immunizations": [
-        {
-          "dose": 1,
-          "date": "2021-01-01T00:00:00.000Z",
-          "manufacturer": "Moderna US.",
-          "performer": "ABC General Hospital"
-        },
-        {
-          "dose": 2,
-          "date": "2021-01-29T00:00:00.000Z",
-          "manufacturer": "Moderna US.",
-          "performer": "ABC General Hospital"
-        }
+          {
+              "dose": 1,
+              "date": "2021-01-01T00:00:00.000Z",
+              "manufacturer": "Moderna US.",
+              "performer": "ABC General Hospital"
+          },
+          {
+              "dose": 2,
+              "date": "2021-01-29T00:00:00.000Z",
+              "manufacturer": "Moderna US.",
+              "performer": "ABC General Hospital"
+          }
       ]
-    },
-    "issuer": "smarthealth.cards"
   }
 */
 ```
