@@ -1,6 +1,6 @@
 # SMART Health Card Decoder Library
 
-A library to decode & verify encoded [__SMART Health Cards__](https://smarthealth.cards/en/) into a patient's COVID-19 immunization record.
+A library to decode & verify encoded [__SMART Health Cards__](https://smarthealth.cards/en/) into a patient's FHIR data.
 <br><br><br> 
 
 Expected usage is to have an application scan a SMART Health Card QR-code with a QR-scanner. The QR code is decoded into an _shc_ string. This _shc_ string is then passed to the `verify()` function along with a directory (a list of application permitted issuers/keys).  
@@ -150,34 +150,11 @@ const encodedShc = 'shc:/56762909524 ... ';
 
 const result = await verify(encodedShc, {keys});
 
-console.log(JSON.stringify(result.record));
+if(result.errors || result.signature.verified !== true) {
+  // handle errors
+}
 
-/* output
-  {
-    "verified": true,
-    "immunizations": {
-      "patient": {
-        "name": "Anyperson, John B.",
-        "dob": "1951-01-20T00:00:00.000Z"
-      },
-      "immunizations": [
-        {
-          "dose": 1,
-          "date": "2021-01-01T00:00:00.000Z",
-          "manufacturer": "Moderna US.",
-          "performer": "ABC General Hospital"
-        },
-        {
-          "dose": 2,
-          "date": "2021-01-29T00:00:00.000Z",
-          "manufacturer": "Moderna US.",
-          "performer": "ABC General Hospital"
-        }
-      ]
-    },
-    "issuer": "unknown" 
-  }
-*/
+const fhir = result.fhirbundle;
 
 ```
 
@@ -216,34 +193,11 @@ const encodedShc = 'shc:/56762909524 ... ';
 
 const result = await verify(encodedShc, {directory: myDirectory});
 
-console.log(JSON.stringify(result.record));
+if(result.errors || result.signature.verified !== true) {
+  // handle errors
+}
 
-/* output
-  {
-    "verified": true,
-    "immunizations": {
-      "patient": {
-        "name": "Anyperson, John B.",
-        "dob": "1951-01-20T00:00:00.000Z"
-      },
-      "immunizations": [
-        {
-          "dose": 1,
-          "date": "2021-01-01T00:00:00.000Z",
-          "manufacturer": "Moderna US.",
-          "performer": "ABC General Hospital"
-        },
-        {
-          "dose": 2,
-          "date": "2021-01-29T00:00:00.000Z",
-          "manufacturer": "Moderna US.",
-          "performer": "ABC General Hospital"
-        }
-      ]
-    },
-    "issuer": "unknown" 
-  }
-*/
+const fhir = result.fhirbundle;
 
 ```
 
