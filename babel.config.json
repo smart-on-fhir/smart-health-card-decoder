@@ -2,17 +2,17 @@
   "presets": [
     // @babel/preset-typescript  required by babel to understand typescript
     "@babel/preset-typescript",
-
     [
       "@babel/preset-env",
       {
         "useBuiltIns": "usage",
         "corejs": {
-          "version": "3.8" 
+          "version": "3.8"
         },
-        "targets": "> 1%"
+        "targets": {
+          "ie": "11"
+        }
       }
     ]
   ]
-
 }
