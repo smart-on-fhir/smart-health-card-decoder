@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import signature from '../src/signature';
-import Context from '../src/context';
-import shc from '../src/shc';
-import { ErrorCode } from '../src/log';
+import signature from '../src/signature.js';
+import Context from '../src/context.js';
+import shc from '../src/shc.js';
+import { ErrorCode } from '../src/log.js';
 import { checkErrors } from "./utils.js";
-import utils from '../src/utils';
-import { Directory, Issuer, IssuerInfo, JWK, JWSHeader, JWSPayload, Options } from '../src/types';
+import utils from '../src/utils.js';
+import { Directory, Issuer, IssuerInfo, JWK, JWSHeader, JWSPayload, Options } from '../src/types.js';
 
 
 const EC = ErrorCode;

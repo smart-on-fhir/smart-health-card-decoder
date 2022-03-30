@@ -261,8 +261,9 @@ console.log(JSON.stringify(result.record));
 
 ```
 
-
-
+<br><br>
+## Low Level API
+See [Low Level API](./docs/api.md#low-level-api) for a list of more granular functions.
 
 
 

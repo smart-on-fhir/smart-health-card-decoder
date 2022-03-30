@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import Context from './context';
+import Context from './context.js';
 import download from './download.js';
 import constants from './constants.js';
-import { CvxCode } from './types';
+import { CvxCode } from './types.js';
 
 const label = 'CTX';
 

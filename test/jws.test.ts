@@ -1,8 +1,8 @@
-import Context from '../src/context';
-import jws from '../src/jws';
+import Context from '../src/context.js';
+import jws from '../src/jws.js';
 import { checkErrors } from "./utils.js";
-import jws_compact from '../src/jws.compact';
-import jws_flat from '../src/jws.flat';
+import jws_compact from '../src/jws.compact.js';
+import jws_flat from '../src/jws.flat.js';
 
 // Add sample issuer to vci directory
 const testDirectory = {

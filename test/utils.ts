@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import Context from "../src/context";
-import { ErrorCode } from "../src/error";
+import Context from "../src/context.js";
+import { ErrorCode } from "../src/error.js";
 
 
 type ExpectedErrors = ErrorCode[][] | ErrorCode[] | ErrorCode;

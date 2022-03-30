@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import Context from "./context";
-import { ShcNumeric, QRUrl, JWSCompact, Options, JWSFlat, Base64Url } from "./types";
-import utils from "./utils";
+import Context from "./context.js";
+import { ShcNumeric, QRUrl, JWSCompact, Options, JWSFlat, Base64Url } from "./types.js";
+import utils from "./utils.js";
 import qr_decoder from './qr.js';
 import shc_decoder from './shc.js';
 import compact_decoder from './jws.compact.js';
@@ -11,7 +11,7 @@ import flat_decoder from './jws.flat.js';
 import jws_header from './jws.header.js';
 import jws_payload from './jws.payload.js';
 import jws_signature from './jws.signature.js';
-import { ErrorCode } from "./error";
+import { ErrorCode } from "./error.js";
 
 
 type artifacts = 'qr' | 'shc' | 'jws.compact' | 'jws.flat' | 'jws.header' | 'jws.payload' | 'jws.signature';

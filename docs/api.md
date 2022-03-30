@@ -1,7 +1,7 @@
 
 # Low Level API
 
-It is expected that typical usage will involve passing qr-dataUrls or SMART Health Card (shc) strings to the main `verify` function and getting decoded and verfied results.
+It is expected that typical usage will involve passing qr-dataUrls or SMART Health Card (shc) strings to the main `verify` function and getting decoded and verified results.
 
 The library also contains more granular functions for dealing with individual 'artifacts' - the intermediate strings and objects representing the various tiers of encoding.
 
@@ -11,16 +11,16 @@ This 'low-level' API has four classes of functions:
 
 - `Decode`  
    Decodes artifacts to their decoded form.  `decode` does not perform any validation beyond what is required to decode the data. So don't assume decoded data is valid.  
-   `decode` performs 'chaining' - meaning it recursivley decodes resulting artifacts.
+   `decode` performs 'chaining' - meaning it recursively decodes resulting artifacts.
 
 - `Encode`  
-   Encodes artifacts to their encoded form. `encode` does perform validation of the artifacts as it encodeds them. Unlike `decode`, `encode` does not perform 'chaining'.  Encoding an artifact only performs that single step.
+   Encodes artifacts to their encoded form. `encode` does perform validation of the artifacts as it encodes them. Unlike `decode`, `encode` does not perform 'chaining'.  Encoding an artifact only performs that single step.
 
 - `Validate`  
    Performs validation on an artifact. `validate` does not perform any encoding or decoding. It only examines the specified artifact and logs errors/warning for invalid properties.
 
 - `Signature`  
-   Verifies the signature of the JSON Web Signature object. This requires the user to supply a diretory or public key set.
+   Verifies the signature of the JSON Web Signature object. This requires the user to supply a directory or public key set.
    `signature` may also create a signature for a JSON Web Token (JWT). This requires the user to supply a private signing key.
 
 <br>
@@ -236,7 +236,7 @@ const result = context.flat;
 
 ```js
 context.fhirbundle = {...};
-context.optons = { iss: '<issuer public key url>' };
+context.options = { iss: '<issuer public key url>' };
 smart.low.encode.fhir(context); 
 const result = context.jws.payload; 
 
@@ -273,7 +273,7 @@ const options = {
 };
 const context = new Context(options);
 context.fhir = { ... fhir data ...};
-smart.low.encode.fhir(context);  // creats a new jws.payload
+smart.low.encode.fhir(context);  // creates a new jws.payload
 await smart.low.signature.sign(context);
 const result = context.jwk; // new jwk with header, payload, and signature
 ```

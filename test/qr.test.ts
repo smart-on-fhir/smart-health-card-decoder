@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import Context from '../src/context';
-import qr from '../src/qr';
-import { checkErrors } from './utils';
+import Context from '../src/context.js';
+import qr from '../src/qr.js';
+import { checkErrors } from './utils.js';
 
 // TODO: enable once we support qr image decoding
 test.skip('qr-decode-valid', async () => {

@@ -1,10 +1,10 @@
-import { low } from '../src/index';
-import { ErrorCode } from "../src/error";
-import { Base64Url, JWSHeader } from '../src/types';
-import convert from '../src/convert';
+import { low } from '../src/index.js';
+import { ErrorCode } from "../src/error.js";
+import { Base64Url, JWSHeader } from '../src/types.js';
+import convert from '../src/convert.js';
 import { checkErrors, toCorruptJson } from "./utils.js";
-import header from '../src/jws.header';
-import Context from '../src/context';
+import header from '../src/jws.header.js';
+import Context from '../src/context.js';
 
 const validHeader = 'eyJ6aXAiOiJERUYiLCJhbGciOiJFUzI1NiIsImtpZCI6ImRNT1ViNW92dE1JYnNXU1czVU1la2ZZWFpidGgzc3J3WlNLQ3plYjBRdzAifQ';
 

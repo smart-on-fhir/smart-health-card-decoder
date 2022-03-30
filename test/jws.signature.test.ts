@@ -1,10 +1,10 @@
-import { low } from '../src/index';
-import { ErrorCode } from "../src/error";
-import { checkErrors, toCorruptJson } from "./utils.js";
-import signature from '../src/jws.signature';
-import { Base64Url } from '../src/types';
-import Context from '../src/context';
-import convert from '../src/convert';
+import { low } from '../src/index.js';
+import { ErrorCode } from "../src/error.js";
+import { checkErrors } from "./utils.js";
+import signature from '../src/jws.signature.js';
+import { Base64Url } from '../src/types.js';
+import Context from '../src/context.js';
+
 
 const validSignature = 'XuJ0cGQ88PmT5drNtymbZiAA7VBQIKSG2jZbljdx8Gram3gNKXjy0jsADh8uDoPKdck90_EK9k6GKNLKmO8ygA';
 

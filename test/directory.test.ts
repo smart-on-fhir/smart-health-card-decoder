@@ -6,7 +6,7 @@ import directory from '../src/directory.js'
 import Context from '../src/context.js';
 import { ErrorCode } from '../src/log.js';
 import { checkErrors } from "./utils.js";
-import { Directory, Issuer, IssuerInfo, JWK } from '../src/types';
+import { Directory, Issuer, IssuerInfo, JWK } from '../src/types.js';
 
 
 function cloneDirectory(dir: Directory): Directory {

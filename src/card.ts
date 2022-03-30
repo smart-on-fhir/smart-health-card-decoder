@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import Context from "./context";
-import fhir from "./fhir";
-import { ImmunizationCard } from "./types";
+import Context from "./context.js";
+import fhir from "./fhir.js";
+import { ImmunizationCard } from "./types.js";
 
 
 function card(context: Context) : ImmunizationCard | undefined {
