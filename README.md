@@ -1,4 +1,4 @@
-# SMART Health Card Verifier Library
+# SMART Health Card Decoder Library
 
 A library to decode & verify encoded [__SMART Health Cards__](https://smarthealth.cards/en/) into a patient's COVID-19 immunization record.
 <br><br><br> 
