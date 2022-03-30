@@ -46,7 +46,6 @@ class Context {
         return warnings.length ? warnings : undefined;
     }
 
-    public card : ImmunizationCard | undefined
 }
 
 export default Context;

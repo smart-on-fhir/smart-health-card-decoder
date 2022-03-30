@@ -54,28 +54,6 @@ Context : {
     },
 
 
-    // an immunization record constructed from issuer and fhir data 
-    card: {
-        issuer: string,  // issuer name or iss
-        verified: boolean,  // the signature verification result
-        patient: {
-            name: string,
-            dob: Date
-        },
-        immunizations :[
-            {
-                dose: number,
-                date: string,
-                manufacturer: string // manufacturer name extracted from a cdc cvx table
-                performer: string // who did the immunization from the fhir data (if provided)
-            },
-            {
-                ...
-            }
-        ]
-    },
-
-
     // array of errors resulting from decode, encode, verification, etc...
     errors: undefined | LogEntry[], 
 

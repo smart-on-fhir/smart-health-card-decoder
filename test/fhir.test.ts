@@ -1,20 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FhirBundle } from '../src/types.js';
 import { checkErrors } from "./utils.js";
 import Context from '../src/context.js';
 import fhir from '../src/fhir.js';
 import jws_payload from '../src/jws.payload.js';
 import { ErrorCode } from '../src/error.js';
+import {data} from './constants.js';
 
-
-const validFhir: FhirBundle = { resourceType: "Bundle", type: "collection", entry: [{ fullUrl: "resource:0", resource: { resourceType: "Patient", name: [{ family: "Anyperson", given: ["John", "B."] }], birthDate: "1951-01-20" } }, { fullUrl: "resource:1", resource: { resourceType: "Immunization", status: "completed", vaccineCode: { coding: [{ system: "http://hl7.org/fhir/sid/cvx", code: "207" }] }, patient: { reference: "resource:0" }, occurrenceDateTime: "2021-01-01", performer: [{ actor: { display: "ABC General Hospital" } }], lotNumber: "0000001" } }, { fullUrl: "resource:2", resource: { resourceType: "Immunization", status: "completed", vaccineCode: { coding: [{ system: "http://hl7.org/fhir/sid/cvx", code: "207" }] }, patient: { reference: "resource:0" }, occurrenceDateTime: "2021-01-29", performer: [{ actor: { display: "ABC General Hospital" } }], lotNumber: "0000007" } }] };
-const privateKey = { "kty": "EC", "kid": "d630duSMWmVfmOtrMKZX6izJfcampjK1h0D4jrXxJwU", "use": "sig", "alg": "ES256", "crv": "P-256", "x": "IpNzj8m7NEZdNG4mdEsTmDWFFyKLE7PmtBLWLGIoJuA", "y": "mVqRexUnULniMBghiSfb8L3HDZSTxhdKWfIcP6Tvabs", "d": "qYg7yrhjPYGJNHc0e9xYNodLaKQvVNG6cShRyhwtwHQ" };
 
 test('fhir-encode-valid', async () => {
     const context = new Context();
-    context.fhirbundle = validFhir;
+    context.fhirbundle = data.fhir;
     context.options.encode = {
         //privateKey : privateKey,
         iss: "https://spec.smarthealth.cards/examples/issuer"
@@ -26,7 +23,7 @@ test('fhir-encode-valid', async () => {
 
 test('fhir-encode-valid-with-options', async () => {
     const context = new Context();
-    context.fhirbundle = validFhir;
+    context.fhirbundle = data.fhir;
     context.options = {
         encode: {
             iss: "https://spec.smarthealth.cards/examples/issuer",
@@ -46,7 +43,7 @@ test('fhir-encode-valid-with-options', async () => {
 
 test('fhir-encode-valid-with-invalid-options', async () => {
     const context = new Context();
-    context.fhirbundle = validFhir;
+    context.fhirbundle = data.fhir;
     context.options.encode = {
         iss: {} as unknown as string,
         fhirVersion: "41",
@@ -59,14 +56,14 @@ test('fhir-encode-valid-with-invalid-options', async () => {
 
 test('fhir-encode-no-iss', async () => {
     const context = new Context();
-    context.fhirbundle = validFhir;
+    context.fhirbundle = data.fhir;
     fhir.encode(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('fhir-encode-no-iss', async () => {
     const context = new Context();
-    context.fhirbundle = validFhir;
+    context.fhirbundle = data.fhir;
     fhir.encode(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });

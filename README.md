@@ -18,32 +18,14 @@ const vciDailySnapshot = await directory.download(); // download daily VCI direc
 
 const result = await verify(resultFromQrScanner, {director: vciDailySnapshot});
 
-console.log(JSON.stringify(result.card));
+if (result.errors || result.signature.verified === false) {
+  // handle errors
+}
 
-/* 
-  {
-      "verified": true,
-      "issuer": "smarthealth.cards",
-      "patient": {
-          "name": "Anyperson, John B.",
-          "dob": "1951-01-20T00:00:00.000Z"
-      },
-      "immunizations": [
-          {
-              "dose": 1,
-              "date": "2021-01-01T00:00:00.000Z",
-              "manufacturer": "Moderna US.",
-              "performer": "ABC General Hospital"
-          },
-          {
-              "dose": 2,
-              "date": "2021-01-29T00:00:00.000Z",
-              "manufacturer": "Moderna US.",
-              "performer": "ABC General Hospital"
-          }
-      ]
-  }
-*/
+const fhir = result.fhirbundle;
+
+// do something with fhir data
+
 ```
 
 The `result` object, returned above, is a _Context_ object.  See [Context object](./docs/context.md) for all the available data contained in this object. 
@@ -92,8 +74,14 @@ Update the `babel.config.json` file to modify desired browser support.
 
   // Decode & Verify the QR-data
   smart.verify( qrImageDataUrl, { keys: approvedKeys })
-      .then(function (result) {
-          var immunizationCard = result.card;
+      .then(function (context) {
+
+          // a signature failure will log an error, so the explict signature check is a fail-safe
+          if(context.errors || context.signature.verified !== true) {
+              // handle errors
+          }
+
+          var fhirBundle = context.fhirBundle;
           // Do something with the results ...
       });
 

@@ -73,8 +73,6 @@ async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, options: 
 
     await signature_verifier.verify(context);
 
-    context.card = card(context);
-
     return context;
 }
 

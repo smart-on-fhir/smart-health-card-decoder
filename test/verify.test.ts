@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import card from '../src/card.js';
 import { verify } from '../src/index.js';
 
 
@@ -34,18 +35,18 @@ const testDirectory = {
 
 test('verify-decode-jws-compact-0', async () => {
     const context = await verify(validShc, { directory: testDirectory });
-    expect(context.card).toMatchObject(immunizationCard);
+    expect(card(context)).toMatchObject(immunizationCard);
 });
 
 test('verify-decode-shc', async () => {
     const context = await verify(validShc, { directory: testDirectory });
-    expect(context.card).toMatchObject(immunizationCard);
+    expect(card(context)).toMatchObject(immunizationCard);
 });
 
 test('verify-decode-jws-compact-altered-signature', async () => {
     const badSignature = validCjws.replace('.qI', '.qJ');
     const context = await verify(badSignature, { directory: testDirectory });
-    expect(context.card).toMatchObject({ ...immunizationCard, verified: false });
+    expect(card(context)).toMatchObject({ ...immunizationCard, verified: false });
 });
 
 

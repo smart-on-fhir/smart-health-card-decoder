@@ -76,8 +76,8 @@ if(context.errors) {
     // handle errors
 }
 
-// collect the desired resulting artifact and do something ...
-const card = context.card;
+// collect the result ...
+const fhir = context.fhirbundle;
 
 ```
 >Note: see [Context object](../docs/context.md) for more information.

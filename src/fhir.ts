@@ -23,7 +23,39 @@ function validate(context: Context): Context {
         return log.fatal(`context.fhirbundle is required and must be an object`, ErrorCode.FHIR_VALIDATION_ERROR);
     }
 
-    // TODO : additional FHIR validation
+    const fb = context.fhirbundle;
+
+    if (!fb.resourceType || fb.resourceType !== 'Bundle') {
+        log.error(`context.fhirbundle.resourceType must equal 'Bundle'`, ErrorCode.FHIR_VALIDATION_ERROR);
+    }
+
+    if (!fb.type || fb.type !== 'collection') {
+        log.error(`context.fhirbundle.type must equal 'collection'`, ErrorCode.FHIR_VALIDATION_ERROR);
+    }
+
+    if (!fb.entry || !(fb.entry instanceof Array)) {
+        return log.fatal(`context.fhirbundle.entry must be an Array`, ErrorCode.FHIR_VALIDATION_ERROR);
+    }
+
+    fb.entry.forEach((entry, index) => {
+
+        if (!entry.fullUrl || !/resource:\d+/.test(entry.fullUrl)) {
+            log.error(`context.fhirbundle.entry[${index}].fullUrl must equal 'resource:#'`, ErrorCode.FHIR_VALIDATION_ERROR);
+        }
+
+        if (!entry.resource || !utils.is.object(entry.resource)) {
+            log.error(`context.fhirbundle.entry[${index}].resource must be an object'`, ErrorCode.FHIR_VALIDATION_ERROR);
+        } else {
+
+            const r = entry.resource;
+
+            if (!r.resourceType || typeof r.resourceType !== 'string') {
+                log.error(`context.fhirbundle.entry[${index}].resource.resourceType must be a string`, ErrorCode.FHIR_VALIDATION_ERROR);
+            }
+        }
+    });
+
+    // TODO: add fhir schema validation
 
     return context;
 }
@@ -78,8 +110,8 @@ function encode(context: Context): Context {
 
     const payload: JWSPayload = {
 
-        iss : iss as string,
-        nbf : nbf as number,
+        iss: iss as string,
+        nbf: nbf as number,
         vc: {
             type: [
                 "https://smarthealth.cards#health-card",
@@ -130,8 +162,8 @@ function getImmunizationRecord(context: Context): ImmunizationRecord | undefined
         return;
     }
 
-    const immunizations: Immunization[] = immunizationEntries.map(ie => parseImmunizationEntry(ie)).sort((a,b) => +a.date - +b.date);
-    immunizations.forEach((im,i) => im.dose = i + 1);
+    const immunizations: Immunization[] = immunizationEntries.map(ie => parseImmunizationEntry(ie)).sort((a, b) => +a.date - +b.date);
+    immunizations.forEach((im, i) => im.dose = i + 1);
 
     return {
         patient,

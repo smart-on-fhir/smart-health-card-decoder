@@ -172,7 +172,7 @@ export interface Immunization {
     performer: string
 }
 
-export interface ImmunizationRecord{
+export interface ImmunizationRecord {
     patient: Patient,
     immunizations: Immunization[]
 }
