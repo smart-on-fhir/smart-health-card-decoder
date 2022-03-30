@@ -2,12 +2,11 @@
 // Licensed under the MIT license.
 
 import { JWSPayload } from "./types.js";
-import { inflateSync } from "fflate";
+import { inflateSync, deflateSync } from 'fflate';
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 import utils from "./utils.js";
 import convert from "./convert.js";
-import * as fflfate from "fflate";
 import fhir from "./fhir.js";
 
 
@@ -28,12 +27,16 @@ function validate(context: Context): Context {
         return log.fatal("JWS payload is not an Object.", ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
-    if (!('iss' in payload)) {
-        return log.fatal(`JWS Payload missing 'issuer' ('iss') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
+    if (!('iss' in payload) || typeof payload.iss !== 'string') {
+        return log.fatal(`JWS Payload missing 'issuer' ('iss') property or is not a string.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
-    if (!('nbf' in payload)) {
-        return log.fatal(`JWS Payload missing 'not before' ('nbf') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
+    if (!('nbf' in payload) || typeof payload.nbf !== 'number') {
+        return log.fatal(`JWS Payload missing 'not before' ('nbf') property or is not a number.`, ErrorCode.JWS_PAYLOAD_ERROR);
+    }
+
+    if(payload.nbf > Date.now()) {
+        return log.fatal(`JWS Payload 'not before' nbf='${new Date(payload.nbf)}' is greater than now.`, ErrorCode.JWS_PAYLOAD_FUTURE_NBF);
     }
 
     if (!('vc' in payload)) {
@@ -113,7 +116,7 @@ function encode(context: Context): Context {
 
     const bytes = convert.textToBytes(json);
 
-    const deflated = fflfate.deflateSync(new Uint8Array(bytes), { level: context.options?.encode?.deflateLevel || 6 });
+    const deflated = deflateSync(new Uint8Array(bytes), { level: context.options?.encode?.deflateLevel || 6 });
 
     context.flat.payload = convert.bytesToBase64(deflated, true);
 

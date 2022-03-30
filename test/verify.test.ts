@@ -33,7 +33,7 @@ const testDirectory = {
 };
 
 
-test('verify-decode-jws-compact-0', async () => {
+test('verify-decode-jws-compact', async () => {
     const context = await verify(validShc, { directory: testDirectory });
     expect(card(context)).toMatchObject(immunizationCard);
 });

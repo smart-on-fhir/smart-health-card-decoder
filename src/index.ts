@@ -15,6 +15,7 @@ import fhir from "./fhir.js";
 import { ErrorCode, LogLevel } from "./log.js";
 import verify from "./verify.js";
 import directory from "./directory.js";
+import card from "./card.js";
 
 type JWSEncode = {
     header: { (context: Context): Context },
@@ -92,7 +93,8 @@ const low = {
     encode,
     decode,
     validate,
-    signature
+    signature,
+    card : card
 }
 
 export default { verify, Context, LogLevel, ErrorCode, directory, low };

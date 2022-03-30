@@ -79,6 +79,8 @@ function encode(context: Context): Context {
 
     let { nbf, iss, rid, fhirVersion } = options.encode ?? {};
 
+    if(nbf === undefined) nbf = Date.now();
+
     // TODO: check private key only if we're chaining encode()
     // if (!privateKey || !key.validate.key(privateKey, true, context)) {
     //     return log.fatal(`options.privateKey is required and must be a JWK private key`, ErrorCode.JWS_ENCODE_FAIL);
@@ -135,63 +137,4 @@ function encode(context: Context): Context {
 }
 
 
-function getImmunizationRecord(context: Context): ImmunizationRecord | undefined {
-
-    const { log } = context;
-    log.label = 'JWS';
-
-    const fhirBundle = context.fhirbundle;
-
-    if (!fhirBundle) {
-        log.error(`Fhir bundle not found in JWS.payload`);
-        return;
-    }
-
-    const patientEntry = fhirBundle.entry.find(entry => entry.resource?.resourceType === 'Patient');
-
-    if (typeof patientEntry === 'undefined') {
-        log.error(`Patient entry not found in JWS.payload.entry[]`);
-        return;
-    }
-
-    const patient = parsePatientEntry(patientEntry);
-    const immunizationEntries = fhirBundle.entry.filter(entry => entry.resource?.resourceType === 'Immunization');
-
-    if (!immunizationEntries || immunizationEntries.length === 0) {
-        log.error(`Immunization entries not found in JWS.payload.entry[]`);
-        return;
-    }
-
-    const immunizations: Immunization[] = immunizationEntries.map(ie => parseImmunizationEntry(ie)).sort((a, b) => +a.date - +b.date);
-    immunizations.forEach((im, i) => im.dose = i + 1);
-
-    return {
-        patient,
-        immunizations
-    }
-
-}
-
-
-function parsePatientEntry(entry: BundleEntry): Patient {
-    const resource = entry.resource as PatientResource;
-    const patientName = `${resource.name?.[0]?.family}, ${resource.name?.[0]?.given.join(' ')}`;
-    const patientDob = new Date(resource.birthDate ?? '');
-    return {
-        name: patientName,
-        dob: patientDob
-    };
-}
-
-
-function parseImmunizationEntry(entry: BundleEntry): Immunization {
-    const resource = entry.resource as ImmunizationResource;
-    return {
-        dose: 0,
-        date: new Date(resource.occurrenceDateTime),
-        manufacturer: cvxDefaultCodes[parseInt(resource.vaccineCode.coding?.[0]?.code)]?.manufacturer ?? 'unknown',
-        performer: resource.performer?.[0]?.actor?.display ?? 'unknown'
-    };
-}
-
-export default { decode, encode, validate, getImmunizationRecord };
+export default { decode, encode, validate };
