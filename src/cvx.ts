@@ -16,7 +16,7 @@ async function downloadCovidCvxCodes(context: Context): Promise<{ [key: number]:
     const url = constants.CVX_ALL_CODES_URL;
 
     const data = await download<string>(url).catch(err => {
-        log.fatal(`Error downloadind CVX codes ${err.toString()}.`);
+        log.fatal(`Error downloading CVX codes ${err.toString()}.`);
         return;
     })
 
