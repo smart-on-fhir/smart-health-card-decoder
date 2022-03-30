@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import signature from '../src/signature';
 import Context from '../src/context';
 import shc from '../src/shc';

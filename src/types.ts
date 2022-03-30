@@ -115,7 +115,6 @@ export interface KeySet {
 }
 
 export interface Options {
-    validator?: number;
     directory?: Directory;
     keys?: Array<JWK>;
     issuers?: Array<Issuer>;

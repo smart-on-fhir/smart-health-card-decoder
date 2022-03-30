@@ -24,8 +24,6 @@ async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, type: art
 async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, type: artifacts, options: Options): Promise<Context>
 async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, artifactOrOptions?: artifacts | Options, options?: Options): Promise<Context> {
 
-
-
     let artifact = undefined;
     options = options || {};
 

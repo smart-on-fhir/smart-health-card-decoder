@@ -64,29 +64,37 @@ jwsValidate.compact = jws_compact.validate;
 jwsValidate.flat = jws_flat.validate;
 
 
-export const validate = {
+const validate = {
     qr: qr_validator.decode,
     shc: shc_validator.validate,
-    jws: jwsValidate
+    jws: jwsValidate,
+    fhir: fhir.validate,
 }
 
-export const decode = {
+const decode = {
     qr: qr_validator.decode,
     shc: shc_validator.decode,
     jws: jwsDecode
 }
 
-export const encode = {
+const encode = {
     shc: shc_validator.encode,
     jws: jwsEncode,
     fhir: fhir.encode
 }
 
-export const signature = {
+const signature = {
     verify: signature_verifier.verify,
     sign: signature_verifier.sign
 }
 
-export default { verify, Context, LogLevel, ErrorCode, directory };
+const low = {
+    encode,
+    decode,
+    validate,
+    signature
+}
 
-export { verify, Context, LogLevel, ErrorCode, directory };
+export default { verify, Context, LogLevel, ErrorCode, directory, low };
+
+export { verify, Context, LogLevel, ErrorCode, directory, low };

@@ -102,6 +102,7 @@ function encode(context: Context): Context {
     return context;
 }
 
+
 function getImmunizationRecord(context: Context): ImmunizationRecord | undefined {
 
     const { log } = context;

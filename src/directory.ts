@@ -6,15 +6,9 @@ import { ErrorCode } from "./error.js";
 import { LogLevel } from "./log.js";
 import { Issuer, Base64Url, JWK, Directory, IssuerInfo } from "./types.js";
 import utils from "./utils.js";
-import axios from "axios";
 import download from "./download.js";
 import key from "./key.js";
 import constants from "./constants.js";
-
-
-let _axios = axios.create({
-    timeout: constants.DOWNLOAD_TIMEOUT
-});
 
 
 async function validate(directory: any, context: Context): Promise<boolean> {

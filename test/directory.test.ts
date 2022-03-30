@@ -17,7 +17,6 @@ const EC = ErrorCode;
 
 test('directory-validate-valid', async () => {
     const context = new Context();
-    // TODO: had to truncate the vci snapshot to hide all the errors
     const dir = cloneDirectory(vciDirectory);
     const result = await directory.validate(dir, context);
     expect(result).toBe(false);

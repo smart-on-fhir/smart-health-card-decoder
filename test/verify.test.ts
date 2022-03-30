@@ -33,7 +33,8 @@ const testDirectory = {
 
 
 test('verify-decode-jws-compact-0', async () => {
-    const context = await verify(validCjws, { directory: testDirectory });
+    const context = await verify(validShc, { directory: testDirectory });
+    console.log(JSON.stringify(context,null,4));
     expect(context.card).toMatchObject(immunizationCard);
 });
 
@@ -73,4 +74,4 @@ const immunizationCard = {
     ],
 
     issuer: "smarthealth.cards"
-}
+};

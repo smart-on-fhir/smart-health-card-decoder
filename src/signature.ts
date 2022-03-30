@@ -4,17 +4,15 @@
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 import fhir from "./fhir.js";
-import { IssuerInfo, Issuer, JWSPayload, JWK, JWSHeader } from "./types.js";
+import {Issuer, JWSPayload, JWK, JWSHeader } from "./types.js";
 import utils from "./utils.js";
 import directory from "./directory.js";
 import convert from "./convert.js";
 import subtle from "./crypto.js";
-import download from "./download.js";
 import jws_header from "./jws.header.js";
 import jws_payload from "./jws.payload.js";
 import jws_signature from "./jws.signature.js";
 import key from "./key.js";
-
 
 
 async function verify(context: Context): Promise<Context> {
@@ -151,7 +149,6 @@ async function checkSignature(jws: string, signature: Uint8Array, publicKey: JWK
     return validated;
 };
 
-
 async function sign(context: Context): Promise<Context> {
 
     const { log } = context;
@@ -202,7 +199,5 @@ async function sign(context: Context): Promise<Context> {
     return context;
 
 }
-
-
 
 export default { verify, sign }

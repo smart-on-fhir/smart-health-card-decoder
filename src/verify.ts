@@ -4,7 +4,7 @@
 import Context from "./context.js";
 import signature_verifier from "./signature.js";
 import { Options, JWSCompact, QRUrl, ShcNumeric, JWSFlat } from "./types.js";
-import { validate } from "./index.js";
+import { low } from "./index.js";
 import artifactDecoder from './decode.js';
 import card from './card.js';
 
@@ -33,7 +33,7 @@ import card from './card.js';
  * 
  * // returns:
 {
-    verified: true,  // signature verfied using provided public key
+    verified: true,  // signature verified using provided public key
     immunizations: {
         patient: {
             name: "Anyperson, John B.",
@@ -65,7 +65,7 @@ async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, options: 
     const context = await artifactDecoder(code, options);
 
     const jws = context.jws;
-    jws && validate.jws(context);
+    jws && low.validate.jws(context);
 
     if (!jws) {
         return context;

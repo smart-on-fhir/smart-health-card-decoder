@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-
-
 import { JWSPayload } from "./types.js";
 import { inflateSync } from "fflate";
 import Context from "./context.js";
@@ -10,6 +8,7 @@ import { ErrorCode } from "./error.js";
 import utils from "./utils.js";
 import convert from "./convert.js";
 import * as fflfate from "fflate";
+import fhir from "./fhir.js";
 
 
 const label = 'JWS.payload';
@@ -45,6 +44,9 @@ function validate(context: Context): Context {
         return log.fatal(`JWS Payload missing 'expiration' ('exp') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
+    context.fhirbundle = context.fhirbundle || context.jws.payload?.vc.credentialSubject.fhirBundle;
+    if (context?.options?.chain !== false) fhir.validate(context);
+
     return context;
 }
 
@@ -60,7 +62,6 @@ function decode(context: Context): Context {
     //    
     if (!utils.is.base64url(payload)) {
         return log.fatal(`payload parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
-        //return context;
     };
     log.debug(`payload base64url:\n ${payload}`);
 
@@ -78,7 +79,6 @@ function decode(context: Context): Context {
         inflatedUint8 = inflateSync(uint8Array);
     } catch (error) {
         return log.fatal(`failed to inflate payload ${(error as Error).toString()}`, ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
-        //return context;
     }
 
     //
@@ -93,7 +93,6 @@ function decode(context: Context): Context {
 
     if (!jwsPayload) {
         return log.fatal('JWS Payload could not be decoded as JSON.', ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
-        //return context;
     }
 
     context.jws.payload = jwsPayload;
