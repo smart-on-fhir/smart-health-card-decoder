@@ -8,7 +8,7 @@ declare module "crypto" {
 }
 
 import nodeCrypto from 'crypto';
-const subtle = nodeCrypto.webcrypto.subtle;
+const subtle = window.crypto.subtle;
 
 // @rollup/plugin-replace will replace the above with this to use the browser's webCrypto
 // or a webCrypto polyfill
