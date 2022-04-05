@@ -8,7 +8,7 @@
     "prepare": "npm run build",
     "build": "npm run clean && npm run tsc && npm run rollup && npm run minify",
     "test": "jest",
-    "tsc": "tsc",
+    "tsc": "tsc && rm -rf ./esm/lib && mv ./esm/src/* ./esm/ && rm -r ./esm/src",
     "tsc:index.d.ts": "tsc -p tsconfig.d.ts.json",
     "rollup": "rollup -c",
     "minify": "uglifyjs ./umd/smart-health-card-decoder.umd.js -c -m --mangle-props keep_quoted -o ./umd/smart-health-card-decoder.umd.min.js",

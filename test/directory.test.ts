@@ -1,12 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import vciDirectory from "./vci_snapshot.json";
 import directory from '../src/directory.js'
 import Context from '../src/context.js';
 import { ErrorCode } from '../src/log.js';
 import { checkErrors } from "./utils.js";
 import { Directory, Issuer, IssuerInfo, JWK } from '../src/types.js';
+
+
+var vciDirectory : Directory;
+
+
+beforeAll(async ()=>{
+    vciDirectory =  await directory.download();
+});
 
 
 function cloneDirectory(dir: Directory): Directory {
