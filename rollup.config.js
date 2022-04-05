@@ -15,15 +15,6 @@ export default [{
 
     plugins: [
 
-        // Replaces NodeJs' webCrypto api with the built-in browser version - or a polyfill if not available
-        replace({
-            preventAssignment: false,  // required to replace assignment calls (e.g. foo = bar)
-            delimiters: ['', ''],  // required to allow replacement of strings without default word boundries (\b)
-            values: {
-                "import nodeCrypto from 'crypto';": "import pollyFillCrypto from '../lib/msrCrypto.js';",
-                "nodeCrypto.webcrypto": "((typeof crypto === 'undefined') ? pollyFillCrypto : crypto)"
-            }
-        }),
 
         // Allows node_modules resolution
         resolve({ extensions, browser: true, preferBuiltins: false }),

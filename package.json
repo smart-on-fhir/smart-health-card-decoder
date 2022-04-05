@@ -2,8 +2,6 @@
   "name": "smart-health-card-decoder",
   "version": "1.0.0",
   "description": "API for decoding a QR encoded SMART Health Card",
-  "browser": "umd/smart-health-card-decoder.umd.min.js",
-  "module": "esm/index.js",
   "main": "esm/index.js",
   "types": "esm/index.d.ts",
   "scripts": {
@@ -18,7 +16,8 @@
   },
   "files": [
     "umd",
-    "esm"
+    "esm",
+    "lib"
   ],
   "author": "Larry Joy",
   "license": "MIT",
