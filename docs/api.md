@@ -41,7 +41,7 @@ These functions have a similar calling signature:
 This is essentially what the main `verify()` function does
 
 ```js
-import { low, Context } from './src/index';
+import { low, Context } from './src/index.js';
 
 // create a new context
 const context = new Context();

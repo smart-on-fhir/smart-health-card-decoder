@@ -6,7 +6,7 @@ import signature_verifier from "./signature.js";
 import { Options, JWSCompact, QRUrl, ShcNumeric, JWSFlat } from "./types.js";
 import { low } from "./index.js";
 import artifactDecoder from './decode.js';
-import card from './card.js';
+
 
 /**
  * Decodes and validates an encoded __SMART Health Card__:

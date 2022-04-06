@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import convert from "./convert";
-import { JWK } from "./types";
+import convert from "./convert.js";
+import { JWK } from "./types.js";
 
 
 // The lib types for Node does not properly expose the webcrypto api, 
