@@ -97,6 +97,4 @@ const low = {
     card : card
 }
 
-export default { verify, Context, LogLevel, ErrorCode, directory, low };
-
 export { verify, Context, LogLevel, ErrorCode, directory, low };

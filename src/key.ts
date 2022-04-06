@@ -3,7 +3,7 @@
 
 import Context from "./context.js";
 import convert from "./convert.js";
-import subtle from "./crypto.js";
+import {hash} from './crypto.js';
 import { ErrorCode } from "./error.js";
 import { JWK, Base64Url } from "./types.js";
 import utils from "./utils.js";
@@ -113,16 +113,11 @@ async function computeKid(key: JWK): Promise<Base64Url> {
 
     const keyBytes = convert.textToBytes(JSON.stringify(pKey));
 
-    return subtle.digest({ name: "SHA-256", }, keyBytes)
-        .then((arrayBuffer: ArrayBuffer) => {
-            const uint8 = new Uint8Array(arrayBuffer);
-            const hash = convert.bytesToBase64(uint8, true);
-            return hash;
-        })
-        .catch((error: Error) => {
-            throw error;
-        });
+    const hashResult = await hash(keyBytes).catch(err => {
+        throw err;
+    });
 
+    return hashResult;
 }
 
 const validate = {
