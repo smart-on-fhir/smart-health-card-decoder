@@ -13,8 +13,25 @@ declare module "crypto" {
 // So for now, we're just defaulting to the polyfill for all versions of Node.
 // TODO: use Node crypto or webcrypto, when available.
 
-import pollyFillCrypto from '../lib/msrCrypto.cjs';
-const subtle : SubtleCrypto = (typeof crypto === 'undefined' ? pollyFillCrypto : crypto).subtle as SubtleCrypto;
+const nodeCrypto = require('crypto');
+const polyFillCrypto = require('../lib/msrCrypto.cjs');
+const browserCrypto = typeof crypto === 'undefined' ? undefined : crypto;
 
+let subtle = polyFillCrypto?.subtle;
+
+// Node 15+
+if( nodeCrypto?.webcrypto ) {
+  subtle = nodeCrypto.webcrypto.subtle;
+} 
+
+// Node 14
+else if ( nodeCrypto ) {
+  // TODO: wrap node sign/verify
+}
+
+// Browser
+else if ( browserCrypto ) {
+  subtle = crypto.subtle;
+}
 
 export default subtle;
