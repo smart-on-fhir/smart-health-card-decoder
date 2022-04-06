@@ -8,7 +8,7 @@ import {Issuer, JWSPayload, JWK, JWSHeader } from "./types.js";
 import utils from "./utils.js";
 import directory from "./directory.js";
 import convert from "./convert.js";
-import subtle from "./crypto.js";
+import {sign as cryptoSign, verify as cryptoVerify} from "./crypto.js";
 import jws_header from "./jws.header.js";
 import jws_payload from "./jws.payload.js";
 import jws_signature from "./jws.signature.js";
@@ -137,12 +137,9 @@ async function checkSignature(jws: string, signature: Uint8Array, publicKey: JWK
         return false;
     }
 
-    const cryptoKey = await subtle.importKey("jwk", publicKey as JsonWebKey, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]).catch((error: Error) => {
-        log.fatal(`subtle.importKey() error ${error.toString()}`, ErrorCode.CRYPTO_FAILURE);
-    });
 
-    const validated = !!cryptoKey && await subtle.verify({ name: "ECDSA", hash: { name: "SHA-256" } }, cryptoKey, signature, jwsBytes).catch((error: Error) => {
-        log.error(`subtle.verify() error ${error.toString()}`, ErrorCode.CRYPTO_FAILURE);
+    const validated = await cryptoVerify(publicKey, signature, jwsBytes).catch(err => {
+        log.fatal(`crypto.verify error ${err.toString()}`, ErrorCode.CRYPTO_FAILURE);
         return false;
     });
 
@@ -168,7 +165,7 @@ async function sign(context: Context): Promise<Context> {
     // TODO: should we always generate a fresh header even if one exists?
     // generates a new header. Requires private key for .kid computation. Clears upstream encodings.
     if (!context.jws.header) {
-        jws_header.generate(context);
+        await jws_header.generate(context);
     }
 
     jws_header.encode(context);
@@ -179,15 +176,9 @@ async function sign(context: Context): Promise<Context> {
 
     const toSign = convert.textToBytes(`${context.flat.header}.${context.flat.payload}`);
 
-    const cryptoKey = await subtle.importKey("jwk", privateKey as JsonWebKey, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]).catch((error: Error) => {
-        log.fatal(`subtle.importKey() error ${error.toString()}`, ErrorCode.CRYPTO_FAILURE);
-        return undefined;
-    });
 
-    if (!cryptoKey) return context;
-
-    const signature = await subtle.sign({ name: "ECDSA", hash: { name: "SHA-256" } }, cryptoKey, toSign).catch((error: Error) => {
-        log.fatal(`subtle.sign() error ${error.toString()}`, ErrorCode.CRYPTO_FAILURE);
+    const signature = await cryptoSign(privateKey, toSign).catch(err => {
+        log.fatal(`crypto.sign error ${err.toString()}`, ErrorCode.CRYPTO_FAILURE);
         return undefined;
     });
 

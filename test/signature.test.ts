@@ -9,6 +9,7 @@ import { checkErrors } from "./utils.js";
 import utils from '../src/utils.js';
 import { Directory, Issuer, IssuerInfo, JWK, JWSHeader, JWSPayload, Options } from '../src/types.js';
 import {data} from './constants.js';
+import payload from '../src/jws.payload';
 
 
 const EC = ErrorCode;
@@ -122,4 +123,23 @@ test('signature-verify-valid-with-non-matching-keys', async () => {
     key.kid = key.x;
     await signature.verify(context);
     checkErrors(context, ErrorCode.DIRECTORY_KEY_NOT_FOUND);
+});
+
+
+test('signature-sign-valid', async () => {
+    const pubKey = {...data.privateKey};
+    delete (pubKey as Partial<JWK>).d;
+    const context = new Context({ privateKey: data.privateKey, keys: [pubKey] });
+    
+    // get a payload object
+    context.flat.payload = data.flat.payload;
+    payload.decode(context);
+
+    // sign
+    await signature.sign(context);
+    checkErrors(context);
+
+    // verify
+    await signature.verify(context);
+    checkErrors(context, [[],[ErrorCode.KEYS_ONLY_MATCH]]);
 });
