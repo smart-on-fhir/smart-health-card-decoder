@@ -8,7 +8,7 @@ import { ErrorCode } from '../src/log.js';
 import { checkErrors } from "./utils.js";
 import utils from '../src/utils.js';
 import { Directory, Issuer, IssuerInfo, JWK, JWSHeader, JWSPayload, Options } from '../src/types.js';
-import {data} from './constants.js';
+import { data } from './constants.js';
 import payload from '../src/jws.payload';
 
 
@@ -54,15 +54,15 @@ test('signature-verify-cjws-altered', async () => {
 
 test('signature-verify-issuerInfo-empty', async () => {
     const directory = utils.clone<Directory>(data.directory);
-    const context = cloneContext({directory});
+    const context = cloneContext({ directory });
     directory.issuerInfo = [];
     await signature.verify(context);
     checkErrors(context, EC.DIRECTORY_ISSUER_NOT_FOUND);
 });
 
-test('signature-verify-issuerInfo-undfined', async () => {
+test('signature-verify-issuerInfo-undefined', async () => {
     const directory = utils.clone<Directory>(data.directory);
-    const context = cloneContext({directory});
+    const context = cloneContext({ directory });
     directory.issuerInfo = undefined as unknown as IssuerInfo[];
     await signature.verify(context);
     checkErrors(context, EC.DIRECTORY_SCHEMA_ERROR);
@@ -70,7 +70,7 @@ test('signature-verify-issuerInfo-undfined', async () => {
 
 test('signature-verify-cannot-find-iss', async () => {
     const directory = utils.clone<Directory>(data.directory);
-    const context = cloneContext({directory});
+    const context = cloneContext({ directory });
     directory.issuerInfo[0].issuer.iss = 'foo';
     await signature.verify(context);
     checkErrors(context, EC.DIRECTORY_ISSUER_NOT_FOUND);
@@ -78,7 +78,7 @@ test('signature-verify-cannot-find-iss', async () => {
 
 test('signature-verify-cannot-find-kid', async () => {
     const directory = utils.clone<Directory>(data.directory);
-    const context = cloneContext({directory});
+    const context = cloneContext({ directory });
     directory.issuerInfo[0].keys[0].kid = 'foo';
     await signature.verify(context);
     checkErrors(context, EC.DIRECTORY_KEY_NOT_FOUND);
@@ -86,7 +86,7 @@ test('signature-verify-cannot-find-kid', async () => {
 
 test('signature-verify-issuer-name-missing', async () => {
     const directory = utils.clone<Directory>(data.directory);
-    const context = cloneContext({directory});
+    const context = cloneContext({ directory });
     delete (directory.issuerInfo[0].issuer as Partial<Issuer>).name;
     await signature.verify(context);
     checkErrors(context);
@@ -94,7 +94,7 @@ test('signature-verify-issuer-name-missing', async () => {
 
 test('signature-verify-bad-key-kty', async () => {
     const directory = utils.clone<Directory>(data.directory);
-    const context = cloneContext({directory});
+    const context = cloneContext({ directory });
     directory.issuerInfo[0].keys[0].kty = 'foo';
     await signature.verify(context);
     checkErrors(context, [[EC.SIGNATURE_INVALID], [EC.JWK_INVALID_PROPERTY]]);
@@ -102,7 +102,7 @@ test('signature-verify-bad-key-kty', async () => {
 
 test('signature-verify-bad-key-alg', async () => {
     const directory = utils.clone<Directory>(data.directory);
-    const context = cloneContext({directory});
+    const context = cloneContext({ directory });
     directory.issuerInfo[0].keys[0].alg = 'foo';
     await signature.verify(context);
     checkErrors(context, [[EC.SIGNATURE_INVALID], [EC.JWK_INVALID_PROPERTY]]);
@@ -114,8 +114,9 @@ test('signature-verify-bad-key-alg', async () => {
 test('signature-verify-valid-with-keys', async () => {
     const context = cloneContext({ keys: utils.clone<JWK[]>(data.directory.issuerInfo[0].keys) });
     await signature.verify(context);
-    checkErrors(context, [[],[ErrorCode.KEYS_ONLY_MATCH]]);
+    checkErrors(context, [[], [ErrorCode.KEYS_ONLY_MATCH]]);
 });
+
 
 test('signature-verify-valid-with-non-matching-keys', async () => {
     const context = cloneContext({ keys: utils.clone<JWK[]>(data.directory.issuerInfo[0].keys) });

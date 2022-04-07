@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import constants from "./constants.js";
 import convert from "./convert.js";
 import { JWK } from "./types.js";
 
@@ -36,7 +37,7 @@ else if (browserCrypto?.subtle) {
 // Webcrypto polyfill if we can't find any of the above crypto apis
 // IE11 uses mscrypto.subtle, but it does not have the EC algorithms we need so we polyfill it instead of shimming its webcrypto api
 if (!nodeCrypto && !subtle) {
-    subtle = req('../lib/msrCrypto.cjs')?.subtle;
+    subtle = req(constants.SUBTLE_POLYFILL_PATH)?.subtle;
 }
 
 
@@ -149,11 +150,26 @@ function unDerSignature(buffer: ArrayBuffer): ArrayBuffer {
 
     const bytes = new Uint8Array(buffer);
 
-    // For signature use, the sign is irrelevant and the leading zero, if present, is ignored.
-    const rStart = 4 + (bytes[3] - 32);  // adjust for the potential leading zero
-    const rBytes = bytes.slice(rStart, rStart + 32); // 32 bytes of the r-integer 
-    const sStart = bytes.length - 32; // gets the last 32, so we can ignore any leading zero
-    const sBytes = bytes.slice(sStart); // 32 bytes of the s-integer
+    const rLen = bytes[3];
+    const sLen = bytes[3 + rLen + 2];
+
+    let rBytes = bytes.slice(4, rLen + 4);
+    // pad zeros when less than 32 bytes
+    while(rBytes.length < 32) {
+        rBytes = new Uint8Array([0, ...rBytes]);
+    }
+    // trim extra zero for sign, if present
+    if(rBytes.length > 32 && rBytes[0] === 0) {
+        rBytes = rBytes.slice(1);
+    }
+
+    let sBytes = bytes.slice(4 + rLen + 2);
+    while(sBytes.length < 32) {
+        sBytes = new Uint8Array([0, ...sBytes]);
+    }
+    if(sBytes.length > 32 && sBytes[0] === 0) {
+        sBytes = sBytes.slice(1);
+    }
 
     const rs = new Uint8Array([...rBytes, ...sBytes]);
 
@@ -165,6 +181,15 @@ function derSignature(bytes: Uint8Array): Uint8Array {
 
     let rBytes = bytes.slice(0, 32);
     let sBytes = bytes.slice(32);
+
+    // trim zero padding
+    while(rBytes[0] === 0) {
+        rBytes = rBytes.slice(1);
+    }
+
+    while(sBytes[0] === 0) {
+        sBytes = sBytes.slice(1);
+    }
 
     // if the high-order bit is set, pre-pend a zero to keep the asn.1 Integer as a positive number
     if (rBytes[0] & 128) {
@@ -286,6 +311,7 @@ function jwkToPrivatePEM(jwk: JWK): string {
         ...bitString
     ]);
 
+    // when the length > 127 we need a 2-byte length
     let derLen = [3 + oidSeq.length + (keySeq.length + 2)];
     if (derLen[0] > 128) {
         derLen = [129, derLen[0]];
@@ -301,7 +327,7 @@ function jwkToPrivatePEM(jwk: JWK): string {
 
         ...oidSeq, // Sequence with oids
 
-        0x04, // Octetstring w/key Sequnce
+        0x04, // Octetstring w/key Sequence
         keySeq.length,
         ...keySeq
 

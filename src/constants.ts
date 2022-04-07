@@ -15,4 +15,6 @@ export default {
     // default download timeout when downloading data (in milliseconds)
     DOWNLOAD_TIMEOUT : 5000,
 
+    SUBTLE_POLYFILL_PATH: '../lib/msrCrypto.cjs'
+
 }
