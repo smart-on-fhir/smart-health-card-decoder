@@ -4,11 +4,11 @@
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 import fhir from "./fhir.js";
-import {Issuer, JWSPayload, JWK, JWSHeader } from "./types.js";
+import { Issuer, JWSPayload, JWK, JWSHeader } from "./types.js";
 import utils from "./utils.js";
 import directory from "./directory.js";
 import convert from "./convert.js";
-import {sign as cryptoSign, verify as cryptoVerify} from "./crypto.js";
+import { sign as cryptoSign, verify as cryptoVerify } from "./crypto.js";
 import jws_header from "./jws.header.js";
 import jws_payload from "./jws.payload.js";
 import jws_signature from "./jws.signature.js";
@@ -26,7 +26,7 @@ async function verify(context: Context): Promise<Context> {
      *  1. Signature bytes from context.jws.signature
      *  2. context.jws.header.kid to match against public key
      *  3. public key with matching kid
-     *  4. first two segments of the context.jwscompact string or comtext.flat
+     *  4. first two segments of the context.jwscompact string or context.flat
      *  5. crypto signature verification api
      * 
      */
@@ -136,7 +136,6 @@ async function checkSignature(jws: string, signature: Uint8Array, publicKey: JWK
     if (!(await key.validate.key(publicKey, false, context))) {
         return false;
     }
-
 
     const validated = await cryptoVerify(publicKey, signature, jwsBytes).catch(err => {
         log.fatal(`crypto.verify error ${err.toString()}`, ErrorCode.CRYPTO_FAILURE);
