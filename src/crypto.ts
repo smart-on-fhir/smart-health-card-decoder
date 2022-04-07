@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import constants from "./constants.js";
 import convert from "./convert.js";
+import msrCrypto from "../lib/msrCrypto.cjs";
 
 
 // The lib types for Node does not properly expose the webcrypto api, 
@@ -44,20 +44,20 @@ function selectSubtle() {
         subtle = nodeCrypto.webcrypto.subtle;
     }
 
-    // Browser : user built-in webcrypto api
+    // Node <=14: use Node's not-web-crypto with subtle wrapper
+    else if (nodeCrypto) {
+        subtle = req('./crypto.node.js');
+    }
+
+    // Browser : user built-in webcrypto api - or polyfill
     else if (browserCrypto?.subtle) {
         subtle = browserCrypto.subtle;
     }
 
-    // Node <=14: use Node's not-web-crypto with subtle wrapper
-    else if (nodeCrypto && !browserCrypto?.subtle) {
-        subtle = req('./crypto.node.js');
-    }
-
-    // Webcrypto polyfill if we can't find any of the above crypto apis
-    // IE11 uses mscrypto.subtle, but it does not have the EC algorithms we need so we polyfill it instead of shimming its webcrypto api
+    //Webcrypto polyfill if we can't find any of the above crypto apis
+    //IE11 uses mscrypto.subtle, but it does not have the EC algorithms we need so we polyfill it instead of shimming its webcrypto api
     else {
-        subtle = req(constants.SUBTLE_POLYFILL_PATH)?.subtle;
+        subtle = msrCrypto.subtle as SubtleCrypto;
     }
 
     return subtle;
