@@ -95,12 +95,12 @@ async function validateKey(key: any, isPrivate = false, context: Context): Promi
     //
     // Check for extra properties
     //
-    const expectedProps = `kty kid use alg crv x y ${isPrivate ? 'd ' : ''}clrVersion x5c`.split(' ');
+    const expectedProps = `kty kid use alg crv x y ${isPrivate ? 'd ' : ''}crlVersion x5c`.split(' ');
     Object.keys(key)
         .filter(prop => !expectedProps.includes(prop))
         .forEach(prop => log.warn(`Unexpected property '${prop}' in JWK key.`, ErrorCode.JWK_UNEXPECTED_PROPERTY));
 
-    return errorCount === context.log.entries().length;
+    return errorCount === context.errors?.length ?? 0;
 
 }
 
