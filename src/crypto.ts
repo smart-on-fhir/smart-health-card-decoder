@@ -33,7 +33,10 @@ function selectSubtle() {
     // Using commonjs type imports to avoid the static imports of esm and the errors it creates when the import is not present
     // Require may or may not exist, so we create a do-nothing function if it's not found.
     const req = (typeof require === 'function') ? require : () => { };
-    const nodeCrypto = req('crypto');
+    let nodeCrypto;
+    try {
+        nodeCrypto = req('crypto');
+    } catch { }
     const browserCrypto = typeof crypto === 'undefined' ? undefined : crypto;
 
 
