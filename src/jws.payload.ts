@@ -47,7 +47,7 @@ function validate(context: Context): Context {
         return log.fatal(`JWS Payload missing 'expiration' ('exp') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
-    context.fhirbundle = context.fhirbundle || context.jws.payload?.vc.credentialSubject.fhirBundle;
+    context.fhirBundle = context.fhirBundle || context.jws.payload?.vc.credentialSubject.fhirBundle;
     if (context?.options?.chain !== false) fhir.validate(context);
 
     return context;
@@ -99,7 +99,7 @@ function decode(context: Context): Context {
     }
 
     context.jws.payload = jwsPayload;
-    context.fhirbundle = context.jws.payload?.vc?.credentialSubject?.fhirBundle;
+    context.fhirBundle = context.jws.payload?.vc?.credentialSubject?.fhirBundle;
 
     return context;
 }

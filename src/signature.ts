@@ -88,7 +88,7 @@ async function verify(context: Context): Promise<Context> {
     }
 
     //
-    // This doesn't do anything but assign the context.fhirbundle property to 
+    // This doesn't do anything but assign the context.fhirBundle property to 
     //
     await fhir.decode(context);
 

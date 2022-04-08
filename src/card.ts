@@ -34,7 +34,7 @@ function getImmunizationRecord(context: Context): ImmunizationRecord | undefined
     const { log } = context;
     log.label = 'JWS';
 
-    const fhirBundle = context.fhirbundle;
+    const fhirBundle = context.fhirBundle;
 
     if (!fhirBundle) {
         log.error(`Fhir bundle not found in JWS.payload`);

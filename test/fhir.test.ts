@@ -11,7 +11,7 @@ import {data} from './constants.js';
 
 test('fhir-encode-valid', async () => {
     const context = new Context();
-    context.fhirbundle = data.fhir;
+    context.fhirBundle = data.fhir;
     context.options.encode = {
         //privateKey : privateKey,
         iss: "https://spec.smarthealth.cards/examples/issuer"
@@ -23,7 +23,7 @@ test('fhir-encode-valid', async () => {
 
 test('fhir-encode-valid-with-options', async () => {
     const context = new Context();
-    context.fhirbundle = data.fhir;
+    context.fhirBundle = data.fhir;
     context.options = {
         encode: {
             iss: "https://spec.smarthealth.cards/examples/issuer",
@@ -43,7 +43,7 @@ test('fhir-encode-valid-with-options', async () => {
 
 test('fhir-encode-valid-with-invalid-options', async () => {
     const context = new Context();
-    context.fhirbundle = data.fhir;
+    context.fhirBundle = data.fhir;
     context.options.encode = {
         iss: {} as unknown as string,
         fhirVersion: "41",
@@ -56,14 +56,14 @@ test('fhir-encode-valid-with-invalid-options', async () => {
 
 test('fhir-encode-no-iss', async () => {
     const context = new Context();
-    context.fhirbundle = data.fhir;
+    context.fhirBundle = data.fhir;
     fhir.encode(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });
 
 test('fhir-encode-no-iss', async () => {
     const context = new Context();
-    context.fhirbundle = data.fhir;
+    context.fhirBundle = data.fhir;
     fhir.encode(context);
     checkErrors(context, ErrorCode.PARAMETER_INVALID);
 });

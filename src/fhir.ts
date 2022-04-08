@@ -19,38 +19,38 @@ function validate(context: Context): Context {
     const { log } = context;
     log.label = label;
 
-    if (!context.fhirbundle || !utils.is.object(context.fhirbundle)) {
-        return log.fatal(`context.fhirbundle is required and must be an object`, ErrorCode.FHIR_VALIDATION_ERROR);
+    if (!context.fhirBundle || !utils.is.object(context.fhirBundle)) {
+        return log.fatal(`context.fhirBundle is required and must be an object`, ErrorCode.FHIR_VALIDATION_ERROR);
     }
 
-    const fb = context.fhirbundle;
+    const fb = context.fhirBundle;
 
     if (!fb.resourceType || fb.resourceType !== 'Bundle') {
-        log.error(`context.fhirbundle.resourceType must equal 'Bundle'`, ErrorCode.FHIR_VALIDATION_ERROR);
+        log.error(`context.fhirBundle.resourceType must equal 'Bundle'`, ErrorCode.FHIR_VALIDATION_ERROR);
     }
 
     if (!fb.type || fb.type !== 'collection') {
-        log.error(`context.fhirbundle.type must equal 'collection'`, ErrorCode.FHIR_VALIDATION_ERROR);
+        log.error(`context.fhirBundle.type must equal 'collection'`, ErrorCode.FHIR_VALIDATION_ERROR);
     }
 
     if (!fb.entry || !(fb.entry instanceof Array)) {
-        return log.fatal(`context.fhirbundle.entry must be an Array`, ErrorCode.FHIR_VALIDATION_ERROR);
+        return log.fatal(`context.fhirBundle.entry must be an Array`, ErrorCode.FHIR_VALIDATION_ERROR);
     }
 
     fb.entry.forEach((entry, index) => {
 
         if (!entry.fullUrl || !/resource:\d+/.test(entry.fullUrl)) {
-            log.error(`context.fhirbundle.entry[${index}].fullUrl must equal 'resource:#'`, ErrorCode.FHIR_VALIDATION_ERROR);
+            log.error(`context.fhirBundle.entry[${index}].fullUrl must equal 'resource:#'`, ErrorCode.FHIR_VALIDATION_ERROR);
         }
 
         if (!entry.resource || !utils.is.object(entry.resource)) {
-            log.error(`context.fhirbundle.entry[${index}].resource must be an object'`, ErrorCode.FHIR_VALIDATION_ERROR);
+            log.error(`context.fhirBundle.entry[${index}].resource must be an object'`, ErrorCode.FHIR_VALIDATION_ERROR);
         } else {
 
             const r = entry.resource;
 
             if (!r.resourceType || typeof r.resourceType !== 'string') {
-                log.error(`context.fhirbundle.entry[${index}].resource.resourceType must be a string`, ErrorCode.FHIR_VALIDATION_ERROR);
+                log.error(`context.fhirBundle.entry[${index}].resource.resourceType must be a string`, ErrorCode.FHIR_VALIDATION_ERROR);
             }
         }
     });
@@ -66,7 +66,7 @@ function decode(context: Context): Context {
     const { log } = context;
     log.label = label;
 
-    context.fhirbundle = context.jws.payload?.vc?.credentialSubject?.fhirBundle;
+    context.fhirBundle = context.jws.payload?.vc?.credentialSubject?.fhirBundle;
 
     return context;
 }
@@ -106,7 +106,7 @@ function encode(context: Context): Context {
 
     if (validate(context).log.isFatal) return context;
 
-    const fhirBundle = context.fhirbundle as FhirBundle;
+    const fhirBundle = context.fhirBundle as FhirBundle;
 
     fhirVersion = fhirVersion || constants.DEFAULT_FHIRVERSION;
 
