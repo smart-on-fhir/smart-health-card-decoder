@@ -2,14 +2,15 @@
 // Licensed under the MIT license.
 
 import Context from '../src/context.js';
-import { downloadCovidCvxCodes } from '../src/cvx.js';
+import { download as downloadCovidCvxCodes } from '../src/cvx.js';
 import { checkErrors } from './utils.js';
 
-test('directory-validate-valid', async () => {
+test('cvx-download', async () => {
     const context = new Context();
     const codes = await downloadCovidCvxCodes(context);
     checkErrors(context);
-    expect(codes?.[208]).toMatchObject(cvx208);
+    // updated will have different values on different systems
+    expect(codes?.[208]).toMatchObject({...cvx208, updated: codes?.[208].updated});
 });
 
 
