@@ -22,7 +22,7 @@ if (result.errors || result.signature.verified === false) {
   // handle errors
 }
 
-const fhir = result.fhirbundle;
+const fhir = result.fhirBundle;
 
 // do something with fhir data
 
@@ -154,7 +154,7 @@ if(result.errors || result.signature.verified !== true) {
   // handle errors
 }
 
-const fhir = result.fhirbundle;
+const fhir = result.fhirBundle;
 
 ```
 
@@ -197,7 +197,7 @@ if(result.errors || result.signature.verified !== true) {
   // handle errors
 }
 
-const fhir = result.fhirbundle;
+const fhir = result.fhirBundle;
 
 ```
 

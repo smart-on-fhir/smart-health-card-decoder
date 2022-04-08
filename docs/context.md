@@ -38,7 +38,7 @@ Context : {
 
 
     // a shortcut to the fhirBundle object within the jws.payload object
-    fhirbundle: { ... fhir data ... },
+    fhirBundle: { ... fhir data ... },
 
 
     // signature verification results

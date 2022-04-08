@@ -18,7 +18,7 @@ class Context {
     public jws: JWS;
 
     // just a pointer into jws
-    public fhirbundle?: FhirBundle;
+    public fhirBundle?: FhirBundle;
 
     public signature?: {
         issuer: Issuer,

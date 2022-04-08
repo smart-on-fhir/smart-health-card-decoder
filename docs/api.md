@@ -77,7 +77,7 @@ if(context.errors) {
 }
 
 // collect the result ...
-const fhir = context.fhirbundle;
+const fhir = context.fhirBundle;
 
 ```
 >Note: see [Context object](../docs/context.md) for more information.
@@ -182,7 +182,7 @@ const errors = context.errors;
 ```
 
 ```js
-context.fhirbundle = {...};
+context.fhirBundle = {...};
 smart.low.validate.fhir(context);
 const errors = context.errors;
 ```
@@ -235,7 +235,7 @@ const result = context.flat;
 ```
 
 ```js
-context.fhirbundle = {...};
+context.fhirBundle = {...};
 context.options = { iss: '<issuer public key url>' };
 smart.low.encode.fhir(context); 
 const result = context.jws.payload; 
