@@ -49,7 +49,7 @@ function selectSubtle() {
 
     // Node <=14: use Node's not-web-crypto with subtle wrapper
     else if (nodeCrypto) {
-        subtle = req('./crypto.node.js');
+        subtle = req('./crypto.node.js').subtle;
     }
 
     // Browser : user built-in webcrypto api - or polyfill
