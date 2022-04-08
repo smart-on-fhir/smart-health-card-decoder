@@ -40,6 +40,17 @@ const directory = {
         }]
 };
 
+const publicKey = {
+    "kty": "EC",
+    "kid": "3Kfdg-XwP-7gXyywtUfUADwBumDOPKMQx-iELL11W9s",
+    "use": "sig",
+    "alg": "ES256",
+    "crv": "P-256",
+    "x": "11XvRWy1I2S0EyJlyf_bWfw_TQ5CJJNLw78bHXNxcgw",
+    "y": "eZXwxvO1hvCY0KucrPfKo7yAyMT6Ajc3N7OkAB6VYy8",
+    "crlVersion": 1
+};
+
 const data = {
     qr,
     shc,
@@ -51,7 +62,8 @@ const data = {
     },
     directory,
     fhir,
-    privateKey
+    privateKey,
+    publicKey
 }
 
 export { data };

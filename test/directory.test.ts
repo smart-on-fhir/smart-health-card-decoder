@@ -97,10 +97,7 @@ test('directory-validate-empty-key', async () => {
     dir.issuerInfo.length = 1;
     dir.issuerInfo[0].keys = [{} as JWK];
     await directory.validate(dir, context);
-    checkErrors(context, [
-        [EC.JWK_INVALID_PROPERTY, EC.JWK_INVALID_PROPERTY, EC.JWK_INVALID_PROPERTY, EC.JWK_INCORRECT_KID],
-        [EC.JWK_INVALID_PROPERTY, EC.JWK_INVALID_PROPERTY, EC.JWK_INVALID_PROPERTY, EC.JWK_INVALID_PROPERTY]
-    ]);
+    checkErrors(context, (new Array(7) as ErrorCode[]).fill(ErrorCode.JWK_INVALID_PROPERTY));
 });
 
 test('directory-download-vci-daily', async () => {

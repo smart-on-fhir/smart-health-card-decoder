@@ -97,7 +97,7 @@ test('signature-verify-bad-key-kty', async () => {
     const context = cloneContext({ directory });
     directory.issuerInfo[0].keys[0].kty = 'foo';
     await signature.verify(context);
-    checkErrors(context, [[EC.SIGNATURE_INVALID], [EC.JWK_INVALID_PROPERTY]]);
+    checkErrors(context, [EC.SIGNATURE_INVALID, EC.JWK_INVALID_PROPERTY]);
 });
 
 test('signature-verify-bad-key-alg', async () => {
@@ -105,7 +105,7 @@ test('signature-verify-bad-key-alg', async () => {
     const context = cloneContext({ directory });
     directory.issuerInfo[0].keys[0].alg = 'foo';
     await signature.verify(context);
-    checkErrors(context, [[EC.SIGNATURE_INVALID], [EC.JWK_INVALID_PROPERTY]]);
+    checkErrors(context, [EC.SIGNATURE_INVALID, EC.JWK_INVALID_PROPERTY]);
 });
 
 
