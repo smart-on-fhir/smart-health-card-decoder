@@ -47,12 +47,10 @@ export interface FhirBundle {
     entry: BundleEntry[]
 }
 
-
 export interface Resource {
     resourceType: 'Patient' | 'Immunization',
     meta?: { security?: unknown[] },
 }
-
 
 export interface ImmunizationResource extends Resource {
     resourceType: "Immunization",
@@ -147,8 +145,6 @@ export interface IssuerInfo {
     issuer: Issuer,
     keys: Array<JWK>
 }
-
-export type FilePath = string;
 
 export type JWSCompact = string;
 

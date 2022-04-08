@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import Context from "./context.js";
-import { cvxDefaultCodes } from "./cvx.js";
+import { defaults as cvxDefaultCodes } from "./cvx.js";
 import { BundleEntry, Immunization, ImmunizationCard, ImmunizationRecord, ImmunizationResource, Patient, PatientResource } from "./types.js";
 
 

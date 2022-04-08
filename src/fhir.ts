@@ -3,7 +3,7 @@
 
 import constants from "./constants.js";
 import Context from "./context.js";
-import { cvxDefaultCodes } from "./cvx.js";
+import { defaults } from "./cvx.js";
 import { ErrorCode } from "./error.js";
 import { ImmunizationRecord, Immunization, BundleEntry, Patient, PatientResource, ImmunizationResource, JWSPayload, FhirBundle } from "./types.js";
 import utils from "./utils.js";
