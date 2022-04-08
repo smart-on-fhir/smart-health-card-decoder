@@ -3,7 +3,7 @@
 
 import Context from "./context.js";
 import convert from "./convert.js";
-import {hash} from './crypto.js';
+import { hash } from './crypto.js';
 import { ErrorCode } from "./error.js";
 import { JWK, Base64Url } from "./types.js";
 import utils from "./utils.js";
@@ -35,18 +35,18 @@ async function validateKeys(keys: any, context: Context): Promise<boolean> {
 };
 
 
-async function validateKey(key: any, isPrivate = false, context: Context): Promise<boolean> {
+async function validateKey(key: JWK, isPrivate = false, context: Context): Promise<boolean> {
 
     const { log } = context;
-    const errorCount = context.log.entries().length;
+    const errorCount = (context.errors?.length ?? 0);
 
     if (!utils.is.object(key)) {
-        log.fatal(`key param is not an object`);
+        log.fatal(`key param is not an object`, ErrorCode.PARAMETER_INVALID);
         return false;
     }
 
     if (!('kty' in key) || typeof key.kty !== 'string' || key.kty !== REQUIRED_KEY_VALUES.kty) {
-        log.warn(`key.kty is not equal to '${REQUIRED_KEY_VALUES.kty}'`, ErrorCode.JWK_INVALID_PROPERTY);
+        log.error(`key.kty is not equal to '${REQUIRED_KEY_VALUES.kty}'`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
     if (!('kid' in key) || !utils.is.base64url(key.kid)) {
@@ -54,15 +54,15 @@ async function validateKey(key: any, isPrivate = false, context: Context): Promi
     }
 
     if (!('use' in key) || typeof key.use !== 'string' || key.use !== REQUIRED_KEY_VALUES.use) {
-        log.warn(`key.use is not equal to '${REQUIRED_KEY_VALUES.use}'`, ErrorCode.JWK_INVALID_PROPERTY);
+        log.error(`key.use is not equal to '${REQUIRED_KEY_VALUES.use}'`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
     if (!('alg' in key) || typeof key.alg !== 'string' || key.alg !== REQUIRED_KEY_VALUES.alg) {
-        log.warn(`key.alg is not equal to '${REQUIRED_KEY_VALUES.alg}'`, ErrorCode.JWK_INVALID_PROPERTY);
+        log.error(`key.alg is not equal to '${REQUIRED_KEY_VALUES.alg}'`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
     if (!('crv' in key) || typeof key.crv !== 'string' || key.crv !== REQUIRED_KEY_VALUES.crv) {
-        log.warn(`key.crv is not equal to '${REQUIRED_KEY_VALUES.crv}'`, ErrorCode.JWK_INVALID_PROPERTY);
+        log.error(`key.crv is not equal to '${REQUIRED_KEY_VALUES.crv}'`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
     if (!('x' in key) || !utils.is.base64url(key.x)) {
@@ -79,17 +79,24 @@ async function validateKey(key: any, isPrivate = false, context: Context): Promi
         }
     }
 
+    if (!isPrivate && ('d' in key)) {
+        log.error(`key.d should not be in public key`, ErrorCode.JWK_INVALID_PROPERTY);
+    }
+
     if ('crlVersion' in key && typeof key.crlVersion !== 'number') {
-        log.warn(`optional key.crlVersion is not a number`, ErrorCode.JWK_INVALID_PROPERTY);
+        log.error(`optional key.crlVersion is not a number`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
     if ('x5c' in key && !utils.is.stringArray(key.x5c)) {
         log.warn(`optional key.x5c is not a string[]`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
-    const computedKid = await computeKid(key as JWK);
-    if (computedKid !== key.kid) {
-        log.error(`key.kid has incorrect value ${key.kid}. Expected: ${computedKid}`, ErrorCode.JWK_INCORRECT_KID);
+    // don't check kid if we have key errors since the computed value will likely be wrong
+    if (errorCount === (context.errors?.length ?? 0)) {
+        const computedKid = await computeKid(key as JWK);
+        if (computedKid !== key.kid) {
+            log.error(`key.kid has incorrect value ${key.kid}. Expected: ${computedKid}`, ErrorCode.JWK_INCORRECT_KID);
+        }
     }
 
     //
@@ -100,7 +107,7 @@ async function validateKey(key: any, isPrivate = false, context: Context): Promi
         .filter(prop => !expectedProps.includes(prop))
         .forEach(prop => log.warn(`Unexpected property '${prop}' in JWK key.`, ErrorCode.JWK_UNEXPECTED_PROPERTY));
 
-    return errorCount === context.errors?.length ?? 0;
+    return errorCount === (context.errors?.length ?? 0);
 
 }
 
@@ -121,8 +128,8 @@ async function computeKid(key: JWK): Promise<Base64Url> {
 }
 
 const validate = {
-    key : validateKey,
+    key: validateKey,
     keys: validateKeys
 }
 
-export default {validate, computeKid};
+export default { validate, computeKid };
