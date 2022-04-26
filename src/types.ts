@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { LogEntry } from "./log.js";
 
 export interface JWSHeader {
@@ -113,7 +110,7 @@ export interface KeySet {
 }
 
 export interface Options {
-    directory?: Directory;
+    directory?: IDirectory | string | string[] | IDirectory[];
     keys?: Array<JWK>;
     issuers?: Array<Issuer>;
     chain?: boolean,
@@ -125,7 +122,18 @@ export interface Options {
         deflateLevel?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
     },
     privateKey?: JWK,
-    reconstructQrCode?: boolean
+    reconstructQrCode?: boolean,
+    validation?: DirectoryOptions
+}
+
+export interface DirectoryOptions {
+    key?: {
+        computeKid?: boolean,
+        allowAdditionalProperties?: boolean
+    },
+    directory?: {
+        allowDuplicates?: boolean
+    }
 }
 
 export interface Issuer {
@@ -135,7 +143,7 @@ export interface Issuer {
     canonical_iss?: string
 }
 
-export interface Directory {
+export interface IDirectory {
     directory: string,
     time: string,
     issuerInfo: Array<IssuerInfo>
@@ -143,7 +151,9 @@ export interface Directory {
 
 export interface IssuerInfo {
     issuer: Issuer,
-    keys: Array<JWK>
+    keys: Array<JWK>,
+    crls?: Array<CRL>,
+    lastRetrieved?: string
 }
 
 export type JWSCompact = string;
@@ -192,4 +202,19 @@ export interface CvxCode {
     mvxStatus: string,
     status: string,
     updated: Date,
+}
+
+export interface CRL {
+    kid: string,
+    method: string,
+    ctr: number,
+    rids: string[]
+}
+
+export interface SHCInfo {
+    kid: string | undefined,
+    rid: string | undefined,
+    nbf: number | undefined,
+    iss: string | undefined,
+    exp: number | undefined
 }

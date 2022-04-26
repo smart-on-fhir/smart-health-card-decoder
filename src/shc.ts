@@ -1,21 +1,17 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 import QRCode, { QRCodeSegment } from 'qrcode';
 import { ShcNumeric } from "./types.js";
 import cjws from "./jws.compact.js";
 
-const label = 'SHC';
+const LABEL = 'SHC';
 
 const shcPattern = /^shc:\/((\d\d)+)$/;
 
 
 function validate(context: Context): Context {
 
-    const { log } = context;
-    log.label = 'SHC';
+    const log = context.log(LABEL);
     const shc = context.shc;
 
     if (typeof shc !== 'string') {
@@ -34,10 +30,9 @@ function validate(context: Context): Context {
 
 async function decode(context: Context): Promise<Context> {
 
-    const log = context.log;
-    log.label = label;
+    const log = context.log(LABEL);
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     const shc = context.shc as ShcNumeric;
 
@@ -66,10 +61,9 @@ async function decode(context: Context): Promise<Context> {
 // Note: this is async because the qr-code generator
 async function encode(context: Context): Promise<Context> {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(LABEL);
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     context.qr = await generateQRUrlFromSch(context.shc as string);
 

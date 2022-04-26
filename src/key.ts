@@ -1,12 +1,9 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import convert from "./convert.js";
 import { hash } from './crypto.js';
 import { ErrorCode } from "./error.js";
 import { JWK, Base64Url } from "./types.js";
-import utils from "./utils.js";
+import { is } from "./utils.js";
 
 const REQUIRED_KEY_VALUES = {
     kty: 'EC',
@@ -15,11 +12,13 @@ const REQUIRED_KEY_VALUES = {
     crv: 'P-256',
 }
 
+const LABEL = 'KEY';
+
 
 async function validateKeys(keys: any, context: Context): Promise<boolean> {
 
-    const { log } = context;
-    const errorCount = context.log.entries().length;
+    const log = context.log(LABEL);
+    const errorCount = log.entries().length;
 
     if (!(keys instanceof Array)) {
         log.fatal(`keys param is not an Array`);
@@ -30,17 +29,17 @@ async function validateKeys(keys: any, context: Context): Promise<boolean> {
         await validateKey(key, false, context);
     }
 
-    return errorCount === context.log.entries().length;
+    return errorCount === log.entries().length;
 
 };
 
 
 async function validateKey(key: JWK, isPrivate = false, context: Context): Promise<boolean> {
 
-    const { log } = context;
+    const log = context.log();
     const errorCount = (context.errors?.length ?? 0);
 
-    if (!utils.is.object(key)) {
+    if (!is.object(key)) {
         log.fatal(`key param is not an object`, ErrorCode.PARAMETER_INVALID);
         return false;
     }
@@ -49,7 +48,7 @@ async function validateKey(key: JWK, isPrivate = false, context: Context): Promi
         log.error(`key.kty is not equal to '${REQUIRED_KEY_VALUES.kty}'`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
-    if (!('kid' in key) || !utils.is.base64url(key.kid)) {
+    if (!('kid' in key) || !is.base64url(key.kid)) {
         log.error(`key.kid is not base64url string`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
@@ -65,16 +64,16 @@ async function validateKey(key: JWK, isPrivate = false, context: Context): Promi
         log.error(`key.crv is not equal to '${REQUIRED_KEY_VALUES.crv}'`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
-    if (!('x' in key) || !utils.is.base64url(key.x)) {
+    if (!('x' in key) || !is.base64url(key.x)) {
         log.error(`key.x is not base64url string`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
-    if (!('y' in key) || !utils.is.base64url(key.y)) {
+    if (!('y' in key) || !is.base64url(key.y)) {
         log.error(`key.y is not base64url string`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
     if (isPrivate) {
-        if (!('d' in key) || !utils.is.base64url(key.y)) {
+        if (!('d' in key) || !is.base64url(key.y)) {
             log.error(`key.d is not base64url string`, ErrorCode.JWK_INVALID_PROPERTY);
         }
     }
@@ -87,12 +86,12 @@ async function validateKey(key: JWK, isPrivate = false, context: Context): Promi
         log.error(`optional key.crlVersion is not a number`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
-    if ('x5c' in key && !utils.is.stringArray(key.x5c)) {
+    if ('x5c' in key && !is.stringArray(key.x5c)) {
         log.warn(`optional key.x5c is not a string[]`, ErrorCode.JWK_INVALID_PROPERTY);
     }
 
     // don't check kid if we have key errors since the computed value will likely be wrong
-    if (errorCount === (context.errors?.length ?? 0)) {
+    if (errorCount === (context.errors?.length ?? 0) && context.options?.validation?.key?.computeKid !== false) {
         const computedKid = await computeKid(key as JWK);
         if (computedKid !== key.kid) {
             log.error(`key.kid has incorrect value ${key.kid}. Expected: ${computedKid}`, ErrorCode.JWK_INCORRECT_KID);
@@ -102,10 +101,12 @@ async function validateKey(key: JWK, isPrivate = false, context: Context): Promi
     //
     // Check for extra properties
     //
-    const expectedProps = `kty kid use alg crv x y ${isPrivate ? 'd ' : ''}crlVersion x5c`.split(' ');
-    Object.keys(key)
-        .filter(prop => !expectedProps.includes(prop))
-        .forEach(prop => log.warn(`Unexpected property '${prop}' in JWK key.`, ErrorCode.JWK_UNEXPECTED_PROPERTY));
+    if (context.options?.validation?.key?.allowAdditionalProperties !== true) {
+        const expectedProps = `kty kid use alg crv x y ${isPrivate ? 'd ' : ''}crlVersion x5c`.split(' ');
+        Object.keys(key)
+            .filter(prop => !expectedProps.includes(prop))
+            .forEach(prop => log.warn(`Unexpected property '${prop}' in JWK key.`, ErrorCode.JWK_UNEXPECTED_PROPERTY));
+    }
 
     return errorCount === (context.errors?.length ?? 0);
 

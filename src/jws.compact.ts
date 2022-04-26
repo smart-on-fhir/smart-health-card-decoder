@@ -1,23 +1,19 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { ErrorCode } from "./error.js";
 import Context from "./context.js";
 import shc_encoder from "./shc.js";
 import jws_flat from "./jws.flat.js";
 import { JWSCompact } from "./types.js";
 
-const label = 'JWS.compact';
+const LABEL = 'JWS.compact';
 
 const cjws = /^([a-zA-Z0-9_-]{2,})\.([a-zA-Z0-9_-]{2,})\.([a-zA-Z0-9_-]{2,})$/;
 
 
 function decode(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(LABEL);
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     const compactJws = context.compact as JWSCompact;
 
@@ -35,11 +31,11 @@ function decode(context: Context): Context {
 
 async function encode(context: Context): Promise<Context> {
 
-    const { log } = context;
-    log.label = 'JWS.compact';
+    const log = context.log(LABEL);
+
     const jwscompact = context.compact;
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     const offset = '-'.charCodeAt(0);
 
@@ -59,7 +55,7 @@ async function encode(context: Context): Promise<Context> {
 
 function validate(context: Context): Context {
 
-    const { log } = context;
+    const log = context.log();
     log.label = 'JWS.compact';
 
     const jwscompact = context.compact;

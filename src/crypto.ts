@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import convert from "./convert.js";
 import msrCrypto from "../lib/msrCrypto.cjs";
 

@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import axios from "axios";
 import constants from "./constants.js";
 
@@ -11,13 +8,14 @@ let _axios = axios.create({
 });
 
 
-function download<T>(url: string): Promise<T> {
-
+export function download<T>(url: string): Promise<T> {
     return _axios.get(url)
         .then(response => {
             return response.data as T;
         });
-
 }
 
-export default download;
+
+export function downloads<T>(urls: string[]): Promise<T[]> {
+    return Promise.all(urls.map<Promise<T>>(u => download(u)))
+}

@@ -54,7 +54,7 @@ export default [{
             file: `./umd/${name.toLowerCase()}.umd.js`,
             format: 'umd',
             name,
-            banner: '// Copyright (c) Microsoft Corporation.\n// Licensed under the MIT license.\n'
+            banner: '// Copyright by the Computational Health Informatics Program, Boston Children\'s Hospital, Boston, MA\n// Licensed under the MIT license.\n'
         }
     ]
 }];

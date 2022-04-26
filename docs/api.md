@@ -1,4 +1,3 @@
-
 # Low Level API
 
 It is expected that typical usage will involve passing qr-dataUrls or SMART Health Card (shc) strings to the main `verify` function and getting decoded and verified results.

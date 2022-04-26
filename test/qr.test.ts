@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from '../src/context.js';
 import qr from '../src/qr.js';
 import { checkErrors } from './utils.js';

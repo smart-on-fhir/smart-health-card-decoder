@@ -1,9 +1,6 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { ErrorCode } from "./error.js";
 import Context from "./context.js";
-import utils from "./utils.js";
+import {is} from "./utils.js";
 import jws_header from "./jws.header.js";
 import jws_payload from "./jws.payload.js";
 import jws_signature from "./jws.signature.js";
@@ -16,14 +13,14 @@ const label = 'JWS';
 
 function validate(context: Context): Context {
 
-    const { log } = context;
+    const log = context.log();
     log.label = label;
     const jws = context.jws;
 
     //
     // jws must be an Object
     //  
-    if (!utils.is.object(jws)) {
+    if (!is.object(jws)) {
         return log.fatal("JWS is not an Object.", ErrorCode.PARAMETER_INVALID);
     }
 
@@ -51,19 +48,18 @@ function validate(context: Context): Context {
 
 function encode(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(label);
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     header.encode(context);
-    if (context.log.isFatal) context;
+    if (log.isFatal) context;
 
     payload.encode(context);
-    if (context.log.isFatal) context;
+    if (log.isFatal) context;
 
     jws_signature.encode(context);
-    if (context.log.isFatal) context;
+    if (log.isFatal) context;
 
     return context;
 }

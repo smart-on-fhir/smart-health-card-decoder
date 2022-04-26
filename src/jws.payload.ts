@@ -1,29 +1,24 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { JWSPayload } from "./types.js";
 import { inflateSync, deflateSync } from 'fflate';
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
-import utils from "./utils.js";
+import {is, parseJson} from "./utils.js";
 import convert from "./convert.js";
 import fhir from "./fhir.js";
 
 
-const label = 'JWS.payload';
+const LABEL = 'JWS.payload';
 
 
 function validate(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
-
+    const log = context.log(LABEL);
     const payload = context.jws.payload;
 
     //
     // payload must be an Object
     //  
-    if (!utils.is.object(payload)) {
+    if (!is.object(payload)) {
         return log.fatal("JWS payload is not an Object.", ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
@@ -56,14 +51,14 @@ function validate(context: Context): Context {
 
 function decode(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log();
+    log.label = LABEL;
     const payload = context.flat.payload;
 
     //
     // payload param must be base64url 
     //    
-    if (!utils.is.base64url(payload)) {
+    if (!is.base64url(payload)) {
         return log.fatal(`payload parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
     };
     log.debug(`payload base64url:\n ${payload}`);
@@ -92,7 +87,7 @@ function decode(context: Context): Context {
     //
     // convert json to payload object
     //
-    const jwsPayload = utils.parseJson<JWSPayload>(json);
+    const jwsPayload = parseJson<JWSPayload>(json);
 
     if (!jwsPayload) {
         return log.fatal('JWS Payload could not be decoded as JSON.', ErrorCode.JWS_PAYLOAD_DECODE_ERROR);
@@ -107,10 +102,9 @@ function decode(context: Context): Context {
 
 function encode(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(LABEL);
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     const json = JSON.stringify(context.jws.payload);
 

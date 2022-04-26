@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { ErrorCode } from "../src/error.js";
 import { checkErrors } from "./utils.js";
 import shc from '../src/shc.js';

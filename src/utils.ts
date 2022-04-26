@@ -1,14 +1,10 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
-import { Base64Url } from "./types.js";
-
+import constants from "./constants.js";
+import { Base64Url, JWS, SHCInfo } from "./types.js";
 
 const base64urlAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const base64urlPattern = /^[\w-]{2,}$/;
 
-
-function parseJson<T>(json: string): T | undefined {
+export function parseJson<T>(json: string): T | undefined {
     try {
         return JSON.parse(json) as T;
     } catch {
@@ -48,8 +44,7 @@ function isStringArray(strArray: any): strArray is string[] {
     return strArray.every(element => typeof element === 'string');
 }
 
-
-function determineArtifact(artifact: any): 'qr' | 'shc' | 'jws.compact' | 'jws.flat' | 'jws' | undefined {
+export function determineArtifact(artifact: any): 'qr' | 'shc' | 'jws.compact' | 'jws.flat' | 'jws' | undefined {
 
     if (/data:image\/(png|jpeg);base64,[0-9A-Za-z+\/]{2,}={0,2}/.test(artifact)) return 'qr';
 
@@ -58,7 +53,7 @@ function determineArtifact(artifact: any): 'qr' | 'shc' | 'jws.compact' | 'jws.f
     if (/^\s*[0-9A-Za-z\-_]{2,}\.[0-9A-Za-z\-_]{2,}\.[0-9A-Za-z\-_]{2,}\s*$/.test(artifact)) return 'jws.compact';
 
     if (is.object(artifact) && 'header' in artifact && 'payload' in artifact && 'signature' in artifact) {
-        if(is.base64url(artifact.header)) return 'jws.flat';
+        if (is.base64url(artifact.header)) return 'jws.flat';
         return 'jws';
     }
 
@@ -67,21 +62,54 @@ function determineArtifact(artifact: any): 'qr' | 'shc' | 'jws.compact' | 'jws.f
 }
 
 
-function clone<T>(object: object): T {
+export function clone<T>(object: object): T {
+    // this has a few problems for deep-cloning; it's fine for our needs.
     return JSON.parse(JSON.stringify(object));
 }
 
 
-const is = {
+function defined(variable: any): boolean {
+    return typeof variable !== 'undefined';
+}
+
+function _undefined(variable: any): variable is undefined {
+    return typeof variable === 'undefined';
+}
+
+function isArray(array: any): array is unknown[] {
+    return array instanceof Array;
+}
+
+function isUrl(url: any): url is string {
+    const isString = typeof url === 'string';
+    const isUrl = constants.URL_REGEX.test(url);
+    return isString && isUrl;
+}
+
+export const is = {
     object: isObject,
     stringArray: isStringArray,
-    base64url: isBase64url
+    base64url: isBase64url,
+    defined,
+    undefined: _undefined,
+    array: isArray,
+    url: isUrl
 }
 
 
-export default {
-    parseJson,
-    is,
-    clone,
-    determineArtifact
+export function shcInfo(jws: JWS): SHCInfo {
+    return {
+        kid: jws.header!.kid,
+        rid: jws.payload!.vc.rid,
+        nbf: jws.payload!.nbf,
+        iss: jws.payload!.iss,
+        exp: jws.payload!.exp
+    }
+}
+
+export function isoDateString(date: Date | number = new Date()): string {
+    if (Number.isInteger(date)) {
+        date = new Date(date as number * 1000);
+    }
+    return (date as Date).toISOString().replace(/\.\d\d\dZ/, 'Z');
 }

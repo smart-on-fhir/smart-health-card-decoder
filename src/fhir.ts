@@ -1,25 +1,20 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import constants from "./constants.js";
 import Context from "./context.js";
-import { defaults } from "./cvx.js";
 import { ErrorCode } from "./error.js";
-import { ImmunizationRecord, Immunization, BundleEntry, Patient, PatientResource, ImmunizationResource, JWSPayload, FhirBundle } from "./types.js";
-import utils from "./utils.js";
+import { JWSPayload, FhirBundle } from "./types.js";
+import { is } from "./utils.js";
 
 
 const FHIR_VERSION_PATTERN = /\d+\.\d+\.\d+/;
 
-const label = 'FHIRBUNDLE';
+const LABEL = 'FHIRBUNDLE';
 
 
 function validate(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(LABEL);
 
-    if (!context.fhirBundle || !utils.is.object(context.fhirBundle)) {
+    if (!context.fhirBundle || !is.object(context.fhirBundle)) {
         return log.fatal(`context.fhirBundle is required and must be an object`, ErrorCode.FHIR_VALIDATION_ERROR);
     }
 
@@ -43,7 +38,7 @@ function validate(context: Context): Context {
             log.error(`context.fhirBundle.entry[${index}].fullUrl must equal 'resource:#'`, ErrorCode.FHIR_VALIDATION_ERROR);
         }
 
-        if (!entry.resource || !utils.is.object(entry.resource)) {
+        if (!entry.resource || !is.object(entry.resource)) {
             log.error(`context.fhirBundle.entry[${index}].resource must be an object'`, ErrorCode.FHIR_VALIDATION_ERROR);
         } else {
 
@@ -63,8 +58,8 @@ function validate(context: Context): Context {
 
 function decode(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log();
+    log.label = LABEL;
 
     context.fhirBundle = context.jws.payload?.vc?.credentialSubject?.fhirBundle;
 
@@ -74,12 +69,13 @@ function decode(context: Context): Context {
 
 function encode(context: Context): Context {
 
-    const { options, log } = context;
-    log.label = label;
+    const { options } = context;
+    const log = context.log(LABEL);
+
 
     let { nbf, iss, rid, fhirVersion } = options.encode ?? {};
 
-    if(nbf === undefined) nbf = Date.now();
+    if (nbf === undefined) nbf = Date.now();
 
     // TODO: check private key only if we're chaining encode()
     // if (!privateKey || !key.validate.key(privateKey, true, context)) {
@@ -104,7 +100,7 @@ function encode(context: Context): Context {
 
     if (log.isFatal) return context;
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     const fhirBundle = context.fhirBundle as FhirBundle;
 

@@ -1,12 +1,8 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 import fhir from "./fhir.js";
-import { Issuer, JWSPayload, JWK, JWSHeader } from "./types.js";
-import utils from "./utils.js";
-import directory from "./directory.js";
+import { JWSPayload, JWK, JWSHeader, IssuerInfo } from "./types.js";
+import { is, clone } from "./utils.js";
 import convert from "./convert.js";
 import { sign as cryptoSign, verify as cryptoVerify } from "./crypto.js";
 import jws_header from "./jws.header.js";
@@ -14,6 +10,7 @@ import jws_payload from "./jws.payload.js";
 import jws_signature from "./jws.signature.js";
 import key from "./key.js";
 
+const LABEL = 'SIGNATURE';
 
 async function verify(context: Context): Promise<Context> {
 
@@ -31,8 +28,7 @@ async function verify(context: Context): Promise<Context> {
      * 
      */
 
-    const { log } = context;
-    log.label = 'SIGNATURE';
+    const log = context.log(LABEL);
 
     // the data to check the signature against
     const compact = context.compact;
@@ -49,7 +45,7 @@ async function verify(context: Context): Promise<Context> {
     }
 
     const kid = (context.jws.header as JWSHeader)?.kid;
-    if (!utils.is.base64url(kid)) {
+    if (!is.base64url(kid)) {
         log.fatal(`Context.jws.header.kid is not a base64url string`, ErrorCode.JWS_COMPACT_MISSING);
         return context;
     }
@@ -60,10 +56,26 @@ async function verify(context: Context): Promise<Context> {
         return context;
     }
 
-    const info: { issuer: Issuer, key: JWK } | undefined = directory.lookupKey(iss, kid, context);
+    const nbf = (context.jws.payload as JWSPayload)?.nbf;
+    if (!(typeof nbf === 'number')) {
+        log.fatal(`Context.jws.payload.nbf is not a number`, ErrorCode.JWS_PAYLOAD_NBF_MISSING);
+        return context;
+    }
+
+    const rid = (context.jws.payload as JWSPayload)?.vc?.rid;
+    if (rid && (typeof rid !== 'string' || !/^[A-Za-z0-9_-]+\.?\d*$/.test(rid))) {
+        log.fatal(`Context.jws.payload.rid is not a string matching pattern ${/^[A-Za-z0-9_-]+\d*$/.toString()}`, ErrorCode.JWS_PAYLOAD_ISS_MISSING);
+        return context;
+    }
+
+    const info: IssuerInfo | undefined = context.directory?.find(iss, kid);
     log.label = 'SIGNATURE';
     if (!info) {
-        // lookupKey will add appropriate errors to the log upon failure
+        if (!context.directory) {
+            log.fatal(`No Directory present. Cannot verifiy signature with public keys.`, ErrorCode.DIRECTORY_MISSING);
+        } else {
+            log.fatal(`No matching issuer/key in Directory. Signature cannot be verified.`, ErrorCode.DIRECTORY_ISSUER_NOT_FOUND);
+        }
         return context;
     }
 
@@ -71,21 +83,23 @@ async function verify(context: Context): Promise<Context> {
     const toBeSigned = compact ? compact.split('.', 2).join('.') : `${flat.header}.${flat.payload}`;
 
 
-    const verified = await checkSignature(toBeSigned, signature, info.key, context).catch(error => {
+    let verified = await checkSignature(toBeSigned, signature, info.keys[0], context).catch(error => {
         log.fatal(`Signature check error ${error.toString()}`, ErrorCode.SIGNATURE_INVALID);
         return false;
     });
 
 
-    context.signature = {
-        issuer: utils.clone(info.issuer),  // clone so caller can't modify 
-        key: utils.clone(info.key),
-        verified
-    };
-
     if (verified === false) {
         log.fatal('Signature could not be verified', ErrorCode.SIGNATURE_INVALID);
     }
+
+
+    context.signature = {
+        issuer: clone(info.issuer),  // clone so caller can't modify 
+        key: clone(info.keys[0]),
+        verified
+    };
+
 
     //
     // This doesn't do anything but assign the context.fhirBundle property to 
@@ -94,41 +108,11 @@ async function verify(context: Context): Promise<Context> {
 
     return context;
 
-
-    /**
-     * 
-     * Find the required key. We can get it several ways:
-     * 
-     *  1. User supplies nothing:
-     *     - keys[] is downloaded from context.jws.payload.iss
-     *     - keys[] are scanned for kid === context.jws.header.kid
-     *     - warning issued as this could have been issues/signed by anyone
-     *  
-     *  2. User supplies context.options.keys[] list:
-     *     - keys[] are scanned for kid === context.jws.header.kid 
-     *     - kid for keys is computed if missing
-     *     - no downloads
-     * 
-     *  3. User supplies contest.options.issuers[] list:
-     *     - issuers[] are scanned for .iss === context.jws.payload.iss   
-     *     - keys[] are downloaded from context.jws.payload.iss
-     *     - keys[] are scanned for kid === context.jws.header.kid
-     * 
-     *  4. User supplies context.options.directory:
-     *     - directory is scanned for .iss === context.jws.payload.iss && .kid === context.jws.header.kid
-     *     - no downloads
-     * 
-     *  5. User supplies url to a directory
-     *     - directory downloaded
-     *     - same as options 4.
-     * 
-     */
-
 }
 
 async function checkSignature(jws: string, signature: Uint8Array, publicKey: JWK, context: Context): Promise<boolean> {
 
-    const { log } = context;
+    const log = context.log();
     log.label = 'SIGNATURE';
 
     const jwsBytes = convert.textToBytes(jws);
@@ -147,15 +131,15 @@ async function checkSignature(jws: string, signature: Uint8Array, publicKey: JWK
 
 async function sign(context: Context): Promise<Context> {
 
-    const { log } = context;
-    log.label = 'SIGNATURE';
+    const log = context.log(LABEL);
+
     const { privateKey } = context.options;
 
     if (!privateKey || !key.validate.key(privateKey, true, context)) {
         return log.fatal(`options.privateKey is required for signature and must be a JWK private key`, ErrorCode.JWS_ENCODE_FAIL);
     }
 
-    if (!context.jws.payload || jws_payload.validate(context).log.isFatal) {
+    if (!context.jws.payload || jws_payload.validate(context).log().isFatal) {
         // clear the upstream encodings so that there is no confusion about this signature failure
         context.qr = context.shc = context.flat.header = context.flat.payload = context.flat.signature = context.jws.signature = undefined;
         return context;

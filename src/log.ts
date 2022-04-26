@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
 
@@ -60,6 +57,8 @@ class Log {
     warn = (message: string, code: ErrorCode = ErrorCode.ERROR): Context => this.add(message, LogLevel.WARNING, code);
     error = (message: string, code: ErrorCode = ErrorCode.ERROR, fatal: boolean = false): Context => this.add(message, LogLevel.ERROR, code, fatal);
     fatal = (message: string, code: ErrorCode = ErrorCode.ERROR): Context => this.add(message, LogLevel.ERROR, code, true);
+
+    clear = () => { this.#entries = [] };
 
     //
     // Customize JSON.stringify() output

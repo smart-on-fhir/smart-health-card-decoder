@@ -1,17 +1,13 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import { Decoder } from '@nuintun/qrcode';
 import { ErrorCode } from "./error.js";
 import shc_decoder from './shc.js';
 
+const LABEL = 'QR';
 
 async function decode(context: Context): Promise<Context> {
 
-    const { log } = context;
-    log.label = 'QR';
-
+    const log = context.log(LABEL);
     const decoder = new Decoder();
 
     if (typeof context.qr !== 'string') {
@@ -36,12 +32,7 @@ async function decode(context: Context): Promise<Context> {
 }
 
 function validate(context: Context): Context {
-
-    const log = context.log;
-    log.label = 'QR';
-
-
-
+    const log = context.log(LABEL);
     return context;
 }
 

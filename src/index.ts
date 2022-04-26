@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import shc_validator from "./shc.js";
 import qr_validator from "./qr.js";
 import jws_validator from "./jws.js";
@@ -13,8 +10,7 @@ import Context from "./context.js";
 import signature_verifier from "./signature.js";
 import fhir from "./fhir.js";
 import { ErrorCode, LogLevel } from "./log.js";
-import verify from "./verify.js";
-import directory from "./directory.js";
+import { verify } from "./verify.js";
 import card from "./card.js";
 
 type JWSEncode = {
@@ -22,7 +18,7 @@ type JWSEncode = {
     payload: { (context: Context): Context },
     signature: { (context: Context): Context },
     compact: { (context: Context): Promise<Context> },
-    flat: { (context: Context): Context },
+    flat: { (context: Context): Promise<Context> },
     (context: Context): Context
 };
 
@@ -94,7 +90,7 @@ const low = {
     decode,
     validate,
     signature,
-    card : card
+    card: card
 }
 
-export { verify, Context, LogLevel, ErrorCode, directory, low };
+export { verify, Context, LogLevel, ErrorCode, low };

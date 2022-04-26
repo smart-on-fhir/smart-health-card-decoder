@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 /**
  * Note: This is the flimsiest of webcrypto wrappers around Node's 'crypto' API
  * 
