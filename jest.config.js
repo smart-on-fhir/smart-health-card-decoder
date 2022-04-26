@@ -2,7 +2,8 @@
 export default {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    resolver: "jest-ts-webcompat-resolver"
+    resolver: "jest-ts-webcompat-resolver",
+    testTimeout: 15000,
     // resolver: we need this because nodejs & browser require that esm module imports have an extensions "import foo from './foo.js'"
     // TypeScript encourages you not to use an extension "import foo from './foo'"
     // If you don't supply an extension in your TS imports, your transpiled JavaScript will give you some form of 'module not found' error at runtime.
