@@ -4,9 +4,9 @@ The Directory class acts as both an approved list of trusted issuers and a store
 
 A Smart Health Card (SHC) may be created and signed by anybody's private key. To ensure that a SHC is verified against a set of trusted issuers, a Directory class is available.
 
-Once a Directory is instaniated, it works as a cache of issuer keys and revocation data.
+Once a Directory is instantiated, it works as a cache of issuer keys and revocation data.
 
-Creating a directory will download the directory and perform a validation on the directory data. If there are download or validation errors, it will be recorded in the `.errors` property of the resulting directory obejct.
+Creating a directory will download the directory and perform a validation on the directory data. If there are download or validation errors, it will be recorded in the `.errors` property of the resulting directory object.
 
 <br>
 
@@ -80,5 +80,5 @@ const mergedDirectory = Directory.create([vciDirectory, myDirectory]);
 >Note: The merging process will handle duplicate issuer data in the following ways:  
 >- Identical _issuers_, _keys_, _crls_, and _rids_ will be combined into single instances.
 >- When data differs, the lists will be combined.
->- When data versions can be determend (i.e. crlVersion, ctr, rid-timestamps), the older versions will be removed.
+>- When data versions can be determined (i.e. crlVersion, ctr, rid-timestamps), the older versions will be removed.
 

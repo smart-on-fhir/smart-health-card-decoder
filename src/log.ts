@@ -74,6 +74,17 @@ class Log {
         return JSON.stringify(this);
     };
 
+
+    public static logEntry(message: string, code: ErrorCode = ErrorCode.ERROR, level: LogLevel = LogLevel.ERROR, label: string = '', fatal: boolean = false): LogEntry {
+        return {
+            code,
+            message,
+            level,
+            label,
+            fatal
+        };
+    }
+
 }
 
 export { LogLevel, ErrorCode, Log };

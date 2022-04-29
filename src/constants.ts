@@ -9,6 +9,8 @@ export default {
     // default download timeout when downloading data (in milliseconds)
     DOWNLOAD_TIMEOUT: 10000,
 
+    DOWNLOAD_INSTANCES: 8,
+
     SUBTLE_POLYFILL_PATH: '../lib/msrCrypto.cjs',
 
     // url to the cdc cvx definitions (w/ manufacturer) are located
@@ -16,6 +18,7 @@ export default {
 
     // the largest int of seconds that can be converted to milliseconds without overflow
     MAX_DATE_SECONDS: 8640000000000,
+    
 
     URL_REGEX: /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/,
 

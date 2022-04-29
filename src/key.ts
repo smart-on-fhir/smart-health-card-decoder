@@ -25,6 +25,10 @@ async function validateKeys(keys: any, context: Context): Promise<boolean> {
         return Promise.resolve(false);
     }
 
+    if(context.options.validation?.key?.filterBadKeys === true) {
+        keys = keys.filter( k => k.alg === REQUIRED_KEY_VALUES.alg);
+    }
+
     for (const key of keys) {
         await validateKey(key, false, context);
     }

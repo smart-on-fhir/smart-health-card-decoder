@@ -129,7 +129,8 @@ export interface Options {
 export interface DirectoryOptions {
     key?: {
         computeKid?: boolean,
-        allowAdditionalProperties?: boolean
+        allowAdditionalProperties?: boolean,
+        filterBadKeys?: boolean
     },
     directory?: {
         allowDuplicates?: boolean

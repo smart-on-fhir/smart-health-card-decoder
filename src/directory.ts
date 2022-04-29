@@ -3,8 +3,8 @@ import Context from "./context.js";
 import { download as urlDownload } from "./download.js";
 import { ErrorCode } from "./error.js";
 import { create as createIssuerInfo, download as downloadIssuerInfo, merge as mergeIssuerInfo, scrub as iiScrub, validate as validateIssuerInfo } from './issuer.info.js';
-import { LogEntry } from "./log.js";
-import { Base64Url, CRL, DirectoryOptions, IDirectory, Issuer, IssuerInfo, JWK } from "./types.js";
+import { Log, LogEntry, LogLevel } from "./log.js";
+import { Base64Url, CRL, DirectoryOptions, IDirectory, Issuer, IssuerInfo, JWK, ResultWithErrors } from "./types.js";
 import { clone, is, isoDateString } from "./utils.js";
 
 
@@ -272,27 +272,17 @@ function scrub(directory: IDirectory): IDirectory {
 }
 
 
-async function update(iss: string, directory: IDirectory, context: Context): Promise<void> {
+async function update(issuerInfo: IssuerInfo): Promise<ResultWithErrors<IssuerInfo>> {
 
-    const log = context.log();
+    const context = new Context();
 
-    const issuerInfoExisting = directory.issuerInfo.find(ii => ii.issuer.iss === iss);
+    const issuerInfoNew = await downloadIssuerInfo(issuerInfo.issuer.iss, context);
 
-    if (!issuerInfoExisting) {
-        log.fatal(`Cannot find issuer in directory with iss ${iss}`, ErrorCode.DIRECTORY_ERROR);
-        return;
-    }
-
-    const issuerInfoNew = await downloadIssuerInfo(iss, context);
     if (!issuerInfoNew) {
-        log.fatal(`Failed to download issuer info at ${iss}`, ErrorCode.DIRECTORY_ERROR);
-        return;
+        return { result: undefined, errors: context.errors };
     }
 
-    directory.issuerInfo[directory.issuerInfo.indexOf(issuerInfoExisting)] = mergeIssuerInfo(issuerInfoNew, issuerInfoExisting);
-
-    return;
-
+    return { result: mergeIssuerInfo(issuerInfoNew, issuerInfo) };
 }
 
 
@@ -423,7 +413,7 @@ export class Directory {
     constructor(directoryData: IDirectory, context?: Context) {
         this.#context = context || new Context();
         this.#issuerInfo = directoryData.issuerInfo;
-        Object.freeze(this.#issuerInfo);
+        //Object.freeze(this.#issuerInfo);
         this.#name = directoryData.directory ?? '';
         this.#time = directoryData.time ?? isoDateString();
     }
@@ -510,6 +500,42 @@ export class Directory {
             time: this.#time,
             issuerInfo: clone(this.#issuerInfo)
         }
+    }
+
+    public async update(iss: string): Promise<boolean>
+    public async update(date: Date | Date): Promise<boolean>
+    public async update(issOrDate: string | Date): Promise<boolean> {
+
+        let isss: string[];
+
+        if (issOrDate instanceof Date) {
+            isss = this.#issuerInfo.filter(ii => {
+                return (new Date(ii.lastRetrieved as string) < issOrDate)
+            }).map(ii => ii.issuer.iss);
+        } else if (is.url(issOrDate)) {
+            isss = [issOrDate];
+        } else {
+            throw new TypeError(`update parameter must be a url string or Date`);
+        }
+
+        for (const iss of isss) {
+
+            const ii = this.find(iss);
+
+            if (!ii) {
+                return Promise.reject([Log.logEntry(`Cannot find iss ${iss} in directory`, ErrorCode.PARAMETER_INVALID)]);
+            }
+
+            const updatedIssuerInfo = await update(ii);
+
+            if (updatedIssuerInfo.errors) {
+                return false;
+            }
+
+           this.#issuerInfo[this.#issuerInfo.indexOf(ii)] = updatedIssuerInfo.result as IssuerInfo;
+        };
+
+        return true;
     }
 
 }

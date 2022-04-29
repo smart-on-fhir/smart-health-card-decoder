@@ -52,6 +52,13 @@ async function validateSingle(issuerInfo: IssuerInfo, context: Context): Promise
 
     await key.validate.keys(issuerInfo.keys, context);
 
+    // rewrite the error labels adding the iss so the error output can be traced
+    if(context.errors?.length ?? 0 > (errorCount ?? 0) ) {
+        for (let index = (errorCount ?? 0); index < (context.errors?.length ?? 0); index++) {
+            context.errors![index].label = `KEY:${issuerInfo.issuer.iss}`;            
+        }
+    }
+
     if (issuerInfo.crls) {
         validateCrls(issuerInfo.crls, issuerInfo.keys, context);
     }
@@ -188,5 +195,5 @@ export async function download(iss: string, context: Context): Promise<IssuerInf
         if (crl) crls.push(crl);
     };
 
-    return create({ iss, name: '' }, keys, crls);
+    return create({ iss, name: '' }, keys, crls, isoDateString());
 }
