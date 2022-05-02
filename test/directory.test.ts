@@ -18,9 +18,10 @@ beforeAll(async () => {
 const ALLOW_ADDITIONAL = { key: { allowAdditionalProperties: true } };
 const IGNORE_KID = { key: { computeKid: false } };
 const IGNORE_BAD_KEY_ALG = { key: { filterBadKeys: true } };
+const VCI_EXCEPTIONS = { key: { filterBadKeys: true, allowAdditionalProperties: true } };
 
 test('directory-create-valid-IDirectory', async () => {
-    const dir = await Directory.create([vciDirectory], ALLOW_ADDITIONAL);
+    const dir = await Directory.create([vciDirectory], VCI_EXCEPTIONS);
     expect(dir.validated).toBe(true);
     checkErrors(dir);
 });
@@ -32,7 +33,7 @@ test('directory-create-valid-empty', async () => {
 });
 
 test('directory-create-valid-duplicate-Directory', async () => {
-    const dir = await Directory.create([vciDirectory, vciDirectory, vciDirectory], ALLOW_ADDITIONAL);
+    const dir = await Directory.create([vciDirectory, vciDirectory, vciDirectory], VCI_EXCEPTIONS);
     expect(dir.validated).toBe(true);
     expect(dir.issuerInfo.length).toBe(vciDirectory.issuerInfo.length);
     checkErrors(dir);
