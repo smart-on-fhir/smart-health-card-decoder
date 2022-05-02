@@ -12,7 +12,7 @@ import fhir from "./fhir.js";
 import { ErrorCode, LogLevel } from "./log.js";
 import { verify } from "./verify.js";
 import card from "./card.js";
-import { Directory } from '../src/directory.js';
+import { Directory } from './directory.js';
 
 type JWSEncode = {
     header: { (context: Context): Context },
