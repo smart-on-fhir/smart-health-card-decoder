@@ -10,25 +10,28 @@ The _shc_ string will then be decoded into an immunization 'card' with the signa
 ```javascript
 // Basic usage
 
-import {verify, directory} from 'smart-health-card-decoder'
+import {verify, Directory} from 'smart-health-card-decoder'
 
 const resultFromQrScanner = 'shc:/56762909524 ... ';  // truncated
 
-const vciDailySnapshot = await directory.download(); // download daily VCI directory snapshot by default.
+const vciDirectory = await Directory.create('vci'); // download daily VCI directory snapshot by default.
 
-const result = await verify(resultFromQrScanner, {director: vciDailySnapshot});
+const result = await verify(resultFromQrScanner, vciDirectory);
 
-if (result.errors || result.signature.verified === false) {
-  // handle errors
+if (result.verified === false) {
+    const failureReason = result.reason;  // 'failed-validation' | 'bad-signature' | 'expired' | 'revoked'
+    const failureErrors = result.data.errors;
+    // handle errors
 }
 
-const fhir = result.fhirBundle;
-
-// do something with fhir data
+// success, do something with fhir data
+const fhirBundle = result.data.fhirBundle;
 
 ```
 
-The `result` object, returned above, is a _Context_ object.  See [Context object](./docs/context.md) for all the available data contained in this object. 
+The `result.data` object, returned above, is a _Context_ object.  See [Context object](./docs/context.md) for all the available data contained in this object. 
+
+See [Directory](./docs/directory.md) for more information on the Directory class used above. 
 
 See [VCI Directory](https://github.com/the-commons-project/vci-directory) for more information about the VCI Directory.
 
@@ -56,34 +59,22 @@ Update the `babel.config.json` file to modify desired browser support.
 
 <script>
 
-  var smart = window['smart-health-card-decoder'];
+    var smart = window['smart-health-card-decoder'];
 
-  var qrImageDataUrl = 'data:image/png;base64,iVBORw0KGg ... '  // truncated';
+    var directory = await smart.Directory.create(["https://spec.smarthealth.cards/examples/issuer"]);
 
-  var approvedKeys = [
-      {
-          kty: "EC",
-          kid: "3Kfdg-XwP-7gXyywtUfUADwBumDOPKMQx-iELL11W9s",
-          use: "sig",
-          alg: "ES256",
-          crv: "P-256",
-          x: "11XvRWy1I2S0EyJlyf_bWfw_TQ5CJJNLw78bHXNxcgw",
-          y: "eZXwxvO1hvCY0KucrPfKo7yAyMT6Ajc3N7OkAB6VYy8"
-      }
-  ];
+    // Decode & Verify the QR-data
+    var result = await smart.verify(qrUrl, directory);
 
-  // Decode & Verify the QR-data
-  smart.verify( qrImageDataUrl, { keys: approvedKeys })
-      .then(function (context) {
+    if (result.verified === false) {
+        const failureReason = result.reason;  // 'failed-validation' | 'bad-signature' | 'expired' | 'revoked'
+        const failureErrors = result.data.errors;
+        // handle errors
+    }
 
-          // a signature failure will log an error, so the explict signature check is a fail-safe
-          if(context.errors || context.signature.verified !== true) {
-              // handle errors
-          }
+    // success, do something with fhir data
+    const fhirBundle = result.data.fhirBundle;
 
-          var fhirBundle = context.fhirBundle;
-          // Do something with the results ...
-      });
 
 </script>
 ```
@@ -122,44 +113,7 @@ Alternatively, the package can be built from source following these steps.
 #  
 ### Examples  
 
-Using `verify()` with a keyset
-<br>  
-
-```javascript
-import {verify} from 'smart-health-card-decoder'
-
-// supply a list of valid public keys instead of a directory
-// signature verification will only happen against keys in the array
-const keys = [
-    {
-        kty: "EC",
-        kid: "3Kfdg-XwP-7gXyywtUfUADwBumDOPKMQx-iELL11W9s",
-        use: "sig",
-        alg: "ES256",
-        crv: "P-256",
-        x: "11XvRWy1I2S0EyJlyf_bWfw_TQ5CJJNLw78bHXNxcgw",
-        y: "eZXwxvO1hvCY0KucrPfKo7yAyMT6Ajc3N7OkAB6VYy8"
-    }
-];
-
-// NOTE: verifying with keys only, will not match the issuer iss property
-
-
-// encoded SMART Health Card resulting from QR-code-scanner (truncated)
-const encodedShc = 'shc:/56762909524 ... ';
-
-const result = await verify(encodedShc, {keys});
-
-if(result.errors || result.signature.verified !== true) {
-  // handle errors
-}
-
-const fhir = result.fhirBundle;
-
-```
-
-
-Using verify() with a constructed directory
+Using `verify()` with a constructed directory
 ```javascript
 import {verify} from 'smart-health-card-decoder'
 
@@ -191,13 +145,18 @@ const myDirectory = {
 
 const encodedShc = 'shc:/56762909524 ... ';
 
-const result = await verify(encodedShc, {directory: myDirectory});
+const directory = await smart.Directory.create(myDirectory);
 
-if(result.errors || result.signature.verified !== true) {
-  // handle errors
+const result = await verify(encodedShc, directory);
+
+if (result.verified === false) {
+    const failureReason = result.reason;  // 'failed-validation' | 'bad-signature' | 'expired' | 'revoked'
+    const failureErrors = result.data.errors;
+    // handle errors
 }
 
-const fhir = result.fhirBundle;
+// success, do something with fhir data
+const fhirBundle = result.data.fhirBundle;
 
 ```
 

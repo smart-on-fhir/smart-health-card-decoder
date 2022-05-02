@@ -299,6 +299,14 @@ async function create(directory?: DirectoryInputs, options: DirectoryOptions = {
 
     // url to directory
     if ((directory === 'vci' || is.url(directory))) {
+        context.options.validation = {
+            ...context.options.validation,
+            key: {
+                // the vci daily snapshot allows 
+                filterBadKeys: true,
+                allowAdditionalProperties: true                
+            }
+        }
         return createFromUrl(directory, context);
     }
 
@@ -532,7 +540,7 @@ export class Directory {
                 return false;
             }
 
-           this.#issuerInfo[this.#issuerInfo.indexOf(ii)] = updatedIssuerInfo.result as IssuerInfo;
+            this.#issuerInfo[this.#issuerInfo.indexOf(ii)] = updatedIssuerInfo.result as IssuerInfo;
         };
 
         return true;

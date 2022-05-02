@@ -17,7 +17,7 @@ interface result {
 }
 
 
-let jws : JWS;
+let jws: JWS;
 
 // decode a valid jws that each test can modify/use
 beforeAll(async () => {
@@ -83,7 +83,7 @@ test('verify-revoked-rid-1-seconds-before-nbf', async () => {
 
 test('verify-revoked-rid-equals-nbf', async () => {
 
-    let rid : string = '';
+    let rid: string = '';
     const context = await modifyAndSign(data.shc, data.privateKey, (ctx: Context) => {
         const nbf = Math.floor(ctx.jws.payload!.nbf);
         ctx.jws.payload!.nbf = nbf;
@@ -110,7 +110,7 @@ test('verify-revoked-rid-without-timestamp', async () => {
     dir.issuerInfo[0].crls![0].rids![0] = dir.issuerInfo[0].crls![0].rids![0].split('.')[0];
     const directory = await Directory.create(dir);
     expect(directory.errors).toBeUndefined();
-    // should be revoked regarldess of nbf
+    // should be revoked regardless of nbf
     const result = await verify(data.shc, directory);
     expect(result.verified).toBe(false);
     expect(result.reason).toBe('revoked');
@@ -142,3 +142,24 @@ const immunizationCard = {
 
     issuer: "smarthealth.cards"
 };
+
+
+test('verify-example', async () => {
+    // Basic usage
+
+    const resultFromQrScanner = data.shc;
+
+    const vciDirectory = await Directory.create('vci'); // download daily VCI directory snapshot by default.
+
+    const result = await verify(resultFromQrScanner, vciDirectory);
+
+    if (result.verified === false) {
+        const failureReason = result.reason;  // 'failed-validation' | 'bad-signature' | 'expired' | 'revoked'
+        const failureErrors = result.data.errors;
+        // handle errors
+    }
+
+    const fhirBundle = result.data.fhirBundle;
+
+    // do something with fhir data
+});

@@ -1,9 +1,9 @@
 import Context from "./context.js";
 import signature_verifier from "./signature.js";
-import { Options, JWSCompact, QRUrl, ShcNumeric, JWSFlat } from "./types.js";
+import { Options, JWSCompact, QRUrl, ShcNumeric, JWSFlat, JWK } from "./types.js";
 import { low } from "./index.js";
 import artifactDecoder from './decode.js';
-import {revoked} from './revocation.js';
+import { revoked } from './revocation.js';
 import { Directory } from "./directory.js";
 import { ErrorCode } from "./error.js";
 
@@ -35,7 +35,9 @@ import { ErrorCode } from "./error.js";
  * 
  * @async
  */
-export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, directory: Directory, options: Options = {}): Promise<{verified: boolean, reason: string, data: Context}> {
+//export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, directory: Directory , options: Options): Promise<{ verified: boolean, reason: string, data: Context }>
+//export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, keys: JWK[], options: Options): Promise<{ verified: boolean, reason: string, data: Context }>
+export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, directory: Directory, options: Options = {}): Promise<{ verified: boolean, reason: string, data: Context }> {
 
     const context = await artifactDecoder(code, options);
     context.directory = directory;
@@ -44,17 +46,17 @@ export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, di
     jws && low.validate.jws(context);
 
     if (!jws?.payload) {
-        return {data: context, verified : false, reason: 'failed-validation'};
+        return { data: context, verified: false, reason: 'failed-validation' };
     }
 
-    const reasons : string[] = [];
+    const reasons: string[] = [];
 
     await signature_verifier.verify(context);
 
     const isNotRevoked = !(await revoked(context));
 
     const isNotExpired = (Date.now() / 1000) < (context.jws.payload?.exp ?? Number.MAX_SAFE_INTEGER);
-    
+
     const isSignatureVerified = context.signature?.verified === true;
 
     // filter out signature error(s) so that they don't also become validation errors
@@ -65,7 +67,7 @@ export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, di
     isSignatureVerified || reasons.push('bad-signature');
     isValidated || reasons.push('failed-validation');
 
-    return { 
+    return {
         verified: isNotRevoked && isNotExpired && isSignatureVerified && isValidated,
         reason: reasons.join('|') || 'success',
         data: context

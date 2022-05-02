@@ -12,6 +12,7 @@ import fhir from "./fhir.js";
 import { ErrorCode, LogLevel } from "./log.js";
 import { verify } from "./verify.js";
 import card from "./card.js";
+import { Directory } from '../src/directory.js';
 
 type JWSEncode = {
     header: { (context: Context): Context },
@@ -93,4 +94,4 @@ const low = {
     card: card
 }
 
-export { verify, Context, LogLevel, ErrorCode, low };
+export { verify, Directory, Context, LogLevel, ErrorCode, low };
