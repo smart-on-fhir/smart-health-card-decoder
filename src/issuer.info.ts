@@ -1,11 +1,11 @@
-import Context from "./context";
+import Context from "./context.js";
 import { validate as validateCrls } from './crl.js';
-import { ErrorCode } from "./error";
+import { ErrorCode } from "./error.js";
 import { validate as validateIssuer } from './issuer.js';
-import key from "./key";
-import { parse } from "./rid";
-import { CRL, Issuer, IssuerInfo, JWK } from "./types";
-import { isoDateString } from "./utils";
+import key from "./key.js";
+import { parse } from "./rid.js";
+import { CRL, Issuer, IssuerInfo, JWK } from "./types.js";
+import { isoDateString } from "./utils.js";
 import { download as downloadUrl } from "./download.js";
 
 

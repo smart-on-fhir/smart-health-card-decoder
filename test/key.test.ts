@@ -2,7 +2,7 @@ import { data } from './constants.js';
 import Context from '../src/context.js';
 import { ErrorCode } from '../src/error.js';
 import keyValidator from '../src/key.js';
-import { JWK } from '../src/types';
+import { JWK } from '../src/types.js';
 import { checkErrors } from './utils.js';
 
 let context = new Context();

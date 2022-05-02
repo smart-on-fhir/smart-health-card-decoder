@@ -1,8 +1,8 @@
-import Context from "./context";
-import { ErrorCode } from "./error";
-import { LogLevel } from "./log";
-import { Issuer } from "./types";
-import { is } from "./utils";
+import Context from "./context.js";
+import { ErrorCode } from "./error.js";
+import { LogLevel } from "./log.js";
+import { Issuer } from "./types.js";
+import { is } from "./utils.js";
 
 const LABEL = 'ISSUER';
 

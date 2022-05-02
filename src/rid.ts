@@ -3,7 +3,7 @@ import Context from "./context.js";
 import convert from "./convert.js";
 import { hash } from "./crypto.js";
 import { ErrorCode } from "./error.js";
-import { JWS } from "./types";
+import { JWS } from "./types.js";
 import { is } from "./utils.js";
 
 

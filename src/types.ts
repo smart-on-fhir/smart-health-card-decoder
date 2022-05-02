@@ -110,8 +110,8 @@ export interface KeySet {
 }
 
 export interface Options {
-    directory?: IDirectory | string | string[] | IDirectory[];
-    keys?: Array<JWK>;
+    //directory?: IDirectory | string | string[] | IDirectory[];
+    //keys?: Array<JWK>;
     issuers?: Array<Issuer>;
     chain?: boolean,
     encode?: {

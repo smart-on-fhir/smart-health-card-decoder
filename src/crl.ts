@@ -1,8 +1,8 @@
-import Context from "./context";
-import { download as downloadUrl } from "./download";
-import { ErrorCode } from "./error";
-import { CRL, JWK } from "./types";
-import { is } from "./utils";
+import Context from "./context.js";
+import { download as downloadUrl } from "./download.js";
+import { ErrorCode } from "./error.js";
+import { CRL, JWK } from "./types.js";
+import { is } from "./utils.js";
 import { validate as validateRid } from "./rid.js";
 import { parse } from "./rid.js";
 
