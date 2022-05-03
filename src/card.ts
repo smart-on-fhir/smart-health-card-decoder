@@ -1,12 +1,11 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import { defaults as cvxDefaultCodes } from "./cvx.js";
 import { BundleEntry, Immunization, ImmunizationCard, ImmunizationRecord, ImmunizationResource, Patient, PatientResource } from "./types.js";
 
 
 export default card;
+
+const LABEL = 'CARD';
 
 
 function card(context: Context) : ImmunizationCard | undefined {
@@ -31,8 +30,7 @@ function card(context: Context) : ImmunizationCard | undefined {
 
 function getImmunizationRecord(context: Context): ImmunizationRecord | undefined {
 
-    const { log } = context;
-    log.label = 'JWS';
+    const log = context.log(LABEL);
 
     const fhirBundle = context.fhirBundle;
 

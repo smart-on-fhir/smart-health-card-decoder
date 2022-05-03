@@ -1,21 +1,26 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 export default {
 
     // This string is placed in jws.payload.vc.credentialSubject.fhirVersion if a value is not assigned through options.fhirVersion
-    DEFAULT_FHIRVERSION : "4.0.1",
+    DEFAULT_FHIRVERSION: "4.0.1",
 
     // url to the daily vci directory snapshot
     VCI_DIRECTORY_DAILY_SNAPSHOT_URL: 'https://raw.githubusercontent.com/the-commons-project/vci-directory/main/logs/vci_snapshot.json',
 
     // default download timeout when downloading data (in milliseconds)
-    DOWNLOAD_TIMEOUT : 5000,
+    DOWNLOAD_TIMEOUT: 10000,
+
+    DOWNLOAD_INSTANCES: 8,
 
     SUBTLE_POLYFILL_PATH: '../lib/msrCrypto.cjs',
 
     // url to the cdc cvx definitions (w/ manufacturer) are located
     CVX_ALL_CODES_URL: 'https://www2a.cdc.gov/vaccines/iis/iisstandards/downloads/TRADENAME.txt',
+
+    // the largest int of seconds that can be converted to milliseconds without overflow
+    MAX_DATE_SECONDS: 8640000000000,
+    
+
+    URL_REGEX: /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/,
 
     CVX_DEFAULT_CODES: {
         207: {

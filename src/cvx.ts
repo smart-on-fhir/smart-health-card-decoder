@@ -1,17 +1,13 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from './context.js';
-import urlDownload from './download.js';
+import {download as urlDownload} from './download.js';
 import constants from './constants.js';
 import { CvxCode } from './types.js';
 
-const label = 'CVX';
+const LABEL = 'CVX';
 
 async function download(context: Context): Promise<{ [key: number]: CvxCode } | undefined> {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(LABEL);
 
     const url = constants.CVX_ALL_CODES_URL;
 

@@ -10,25 +10,28 @@ The _shc_ string will then be decoded into an immunization 'card' with the signa
 ```javascript
 // Basic usage
 
-import {verify, directory} from 'smart-health-card-decoder'
+import {verify, Directory} from 'smart-health-card-decoder'
 
 const resultFromQrScanner = 'shc:/56762909524 ... ';  // truncated
 
-const vciDailySnapshot = await directory.download(); // download daily VCI directory snapshot by default.
+const vciDirectory = await Directory.create('vci'); // download daily VCI directory snapshot by default.
 
-const result = await verify(resultFromQrScanner, {director: vciDailySnapshot});
+const result = await verify(resultFromQrScanner, vciDirectory);
 
-if (result.errors || result.signature.verified === false) {
-  // handle errors
+if (result.verified === false) {
+    const failureReason = result.reason;  // 'failed-validation' | 'bad-signature' | 'expired' | 'revoked'
+    const failureErrors = result.data.errors;
+    // handle errors
 }
 
-const fhir = result.fhirBundle;
-
-// do something with fhir data
+// success, do something with fhir data
+const fhirBundle = result.data.fhirBundle;
 
 ```
 
-The `result` object, returned above, is a _Context_ object.  See [Context object](./docs/context.md) for all the available data contained in this object. 
+The `result.data` object, returned above, is a _Context_ object.  See [Context object](./docs/context.md) for all the available data contained in this object. 
+
+See [Directory](./docs/directory.md) for more information on the Directory class used above. 
 
 See [VCI Directory](https://github.com/the-commons-project/vci-directory) for more information about the VCI Directory.
 
@@ -56,34 +59,22 @@ Update the `babel.config.json` file to modify desired browser support.
 
 <script>
 
-  var smart = window['smart-health-card-decoder'];
+    var smart = window['smart-health-card-decoder'];
 
-  var qrImageDataUrl = 'data:image/png;base64,iVBORw0KGg ... '  // truncated';
+    var directory = await smart.Directory.create(["https://spec.smarthealth.cards/examples/issuer"]);
 
-  var approvedKeys = [
-      {
-          kty: "EC",
-          kid: "3Kfdg-XwP-7gXyywtUfUADwBumDOPKMQx-iELL11W9s",
-          use: "sig",
-          alg: "ES256",
-          crv: "P-256",
-          x: "11XvRWy1I2S0EyJlyf_bWfw_TQ5CJJNLw78bHXNxcgw",
-          y: "eZXwxvO1hvCY0KucrPfKo7yAyMT6Ajc3N7OkAB6VYy8"
-      }
-  ];
+    // Decode & Verify the QR-data
+    var result = await smart.verify(qrUrl, directory);
 
-  // Decode & Verify the QR-data
-  smart.verify( qrImageDataUrl, { keys: approvedKeys })
-      .then(function (context) {
+    if (result.verified === false) {
+        const failureReason = result.reason;  // 'failed-validation' | 'bad-signature' | 'expired' | 'revoked'
+        const failureErrors = result.data.errors;
+        // handle errors
+    }
 
-          // a signature failure will log an error, so the explict signature check is a fail-safe
-          if(context.errors || context.signature.verified !== true) {
-              // handle errors
-          }
+    // success, do something with fhir data
+    const fhirBundle = result.data.fhirBundle;
 
-          var fhirBundle = context.fhirBundle;
-          // Do something with the results ...
-      });
 
 </script>
 ```
@@ -122,44 +113,7 @@ Alternatively, the package can be built from source following these steps.
 #  
 ### Examples  
 
-Using `verify()` with a keyset
-<br>  
-
-```javascript
-import {verify} from 'smart-health-card-decoder'
-
-// supply a list of valid public keys instead of a directory
-// signature verification will only happen against keys in the array
-const keys = [
-    {
-        kty: "EC",
-        kid: "3Kfdg-XwP-7gXyywtUfUADwBumDOPKMQx-iELL11W9s",
-        use: "sig",
-        alg: "ES256",
-        crv: "P-256",
-        x: "11XvRWy1I2S0EyJlyf_bWfw_TQ5CJJNLw78bHXNxcgw",
-        y: "eZXwxvO1hvCY0KucrPfKo7yAyMT6Ajc3N7OkAB6VYy8"
-    }
-];
-
-// NOTE: verifying with keys only, will not match the issuer iss property
-
-
-// encoded SMART Health Card resulting from QR-code-scanner (truncated)
-const encodedShc = 'shc:/56762909524 ... ';
-
-const result = await verify(encodedShc, {keys});
-
-if(result.errors || result.signature.verified !== true) {
-  // handle errors
-}
-
-const fhir = result.fhirBundle;
-
-```
-
-
-Using verify() with a constructed directory
+Using `verify()` with a constructed directory
 ```javascript
 import {verify} from 'smart-health-card-decoder'
 
@@ -191,43 +145,21 @@ const myDirectory = {
 
 const encodedShc = 'shc:/56762909524 ... ';
 
-const result = await verify(encodedShc, {directory: myDirectory});
+const directory = await smart.Directory.create(myDirectory);
 
-if(result.errors || result.signature.verified !== true) {
-  // handle errors
+const result = await verify(encodedShc, directory);
+
+if (result.verified === false) {
+    const failureReason = result.reason;  // 'failed-validation' | 'bad-signature' | 'expired' | 'revoked'
+    const failureErrors = result.data.errors;
+    // handle errors
 }
 
-const fhir = result.fhirBundle;
+// success, do something with fhir data
+const fhirBundle = result.data.fhirBundle;
 
 ```
 
 <br><br>
 ## Low Level API
 See [Low Level API](./docs/api.md#low-level-api) for a list of more granular functions.
-
-
-
-<br><br>
-## Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
-
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-<br><br>
-## Trademarks
-
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
-

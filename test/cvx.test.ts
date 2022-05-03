@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from '../src/context.js';
 import { download as downloadCovidCvxCodes } from '../src/cvx.js';
 import { checkErrors } from './utils.js';

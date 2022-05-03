@@ -1,15 +1,12 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { ErrorCode } from "./error.js";
-import utils from "./utils.js";
+import {is} from "./utils.js";
 import Context from "./context.js";
 import { Base64Url } from "./types.js";
 import convert from "./convert.js";
 import key from "./key.js";
 
 
-const label = 'JWS.header';
+const LABEL = 'JWS.header';
 
 const REQUIRED_HEADER_VALUES = {
     zip: 'DEF',
@@ -19,14 +16,13 @@ const REQUIRED_HEADER_VALUES = {
 
 function decode(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(LABEL);
     const header = context.flat.header;
 
     //
     // header param must be base64url encoded
     //    
-    if (!utils.is.base64url(header)) {
+    if (!is.base64url(header)) {
         log.fatal(`header parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
         return context;
     };
@@ -53,15 +49,13 @@ function decode(context: Context): Context {
 
 function validate(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
-
+    const log = context.log(LABEL);
     const header = context.jws.header;
 
     //
     // Header must be an Object (not Array or Null either)
     //  
-    if (!utils.is.object(header)) {
+    if (!is.object(header)) {
         return log.fatal("JWS header is not an Object.", ErrorCode.JWS_HEADER_ERROR);
     }
 
@@ -88,7 +82,7 @@ function validate(context: Context): Context {
     //
     if (!('kid' in header)) {
         log.error("JWS header missing 'kid' property.", ErrorCode.JWS_HEADER_ERROR);
-    } else if (!utils.is.base64url(header.kid)) {
+    } else if (!is.base64url(header.kid)) {
         log.error("JWS header 'kid' property not encoded as base64url.", ErrorCode.JWS_HEADER_ERROR);
     }
 
@@ -110,9 +104,9 @@ function validate(context: Context): Context {
 
 function encode(context: Context): Context {
 
-    context.log.label = label;
+    context.log(LABEL);
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     context.flat.header = convert.textToBase64(JSON.stringify(context.jws.header), true) as Base64Url;
 
@@ -122,8 +116,8 @@ function encode(context: Context): Context {
 // Creates a new JWS header given a user-supplied private key
 async function generate(context: Context): Promise<Context> {
 
-    const { log } = context;
-    log.label = 'JWS.Header';
+    const log = context.log(LABEL);
+    
     const { privateKey } = context.options;
 
     if (!privateKey || !key.validate.key(privateKey, true, context)) {

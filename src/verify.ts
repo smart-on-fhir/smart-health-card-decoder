@@ -1,11 +1,11 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import signature_verifier from "./signature.js";
-import { Options, JWSCompact, QRUrl, ShcNumeric, JWSFlat } from "./types.js";
+import { Options, JWSCompact, QRUrl, ShcNumeric, JWSFlat, JWK } from "./types.js";
 import { low } from "./index.js";
 import artifactDecoder from './decode.js';
+import { revoked } from './revocation.js';
+import { Directory } from "./directory.js";
+import { ErrorCode } from "./error.js";
 
 
 /**
@@ -31,49 +31,45 @@ import artifactDecoder from './decode.js';
  * const shc = 'shc:/567629095243206034602924374 ...';
  * const verificationRecord = await verify(shc, { directory });
  * 
- * // returns:
-{
-    verified: true,  // signature verified using provided public key
-    immunizations: {
-        patient: {
-            name: "Anyperson, John B.",
-            dob: new Date("1951-01-20T00:00:00.000Z")
-        },
-        immunizations: [
-            {
-                dose: 1,
-                date: new Date("2021-01-01T00:00:00.000Z"),
-                manufacturer: "Moderna US.",
-                performer: "ABC General Hospital"
-            },
-            {
-                dose: 2,
-                date: new Date("2021-01-29T00:00:00.000Z"),
-                manufacturer: "Moderna US.",
-                performer: "ABC General Hospital"
-            }
-        ]
-    },
-    issuer: "smarthealth.cards"
-}
  * ```
  * 
  * @async
  */
-async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, options: Options): Promise<Context> {
+//export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, directory: Directory , options: Options): Promise<{ verified: boolean, reason: string, data: Context }>
+//export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, keys: JWK[], options: Options): Promise<{ verified: boolean, reason: string, data: Context }>
+export async function verify(code: QRUrl | ShcNumeric | JWSCompact | JWSFlat, directory: Directory, options: Options = {}): Promise<{ verified: boolean, reason: string, data: Context }> {
 
     const context = await artifactDecoder(code, options);
+    context.directory = directory;
 
     const jws = context.jws;
     jws && low.validate.jws(context);
 
-    if (!jws) {
-        return context;
+    if (!jws?.payload) {
+        return { data: context, verified: false, reason: 'failed-validation' };
     }
+
+    const reasons: string[] = [];
 
     await signature_verifier.verify(context);
 
-    return context;
-}
+    const isNotRevoked = !(await revoked(context));
 
-export default verify;
+    const isNotExpired = (Date.now() / 1000) < (context.jws.payload?.exp ?? Number.MAX_SAFE_INTEGER);
+
+    const isSignatureVerified = context.signature?.verified === true;
+
+    // filter out signature error(s) so that they don't also become validation errors
+    const isValidated = !(context.errors ?? []).filter(logEntry => logEntry.code < ErrorCode.SIGNATURE_INVALID).length;
+
+    isNotExpired || reasons.push('expired');
+    isNotRevoked || reasons.push('revoked');
+    isSignatureVerified || reasons.push('bad-signature');
+    isValidated || reasons.push('failed-validation');
+
+    return {
+        verified: isNotRevoked && isNotExpired && isSignatureVerified && isValidated,
+        reason: reasons.join('|') || 'success',
+        data: context
+    }
+}

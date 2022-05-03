@@ -1,8 +1,5 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { ErrorCode } from "./error.js";
-import utils from "./utils.js";
+import {is} from "./utils.js";
 import Context from "./context.js";
 import convert from "./convert.js";
 
@@ -10,14 +7,14 @@ const label = 'JWS.signature';
 
 function decode(context: Context): Context {
 
-    const { log } = context;
+    const log = context.log();
     log.label = label;
     const signature = context.flat.signature;
 
     //
     // signature param must be base64url encoded
     //    
-    if (!utils.is.base64url(signature)) {
+    if (!is.base64url(signature)) {
         log.fatal(`signature parameter is not base64url`, ErrorCode.PARAMETER_INVALID);
         return context;
     };
@@ -37,7 +34,7 @@ function decode(context: Context): Context {
 
 function validate(context: Context): Context {
 
-    const { log } = context;
+    const log = context.log();
     log.label = label;
 
     if (!(context.jws.signature instanceof Uint8Array)) {
@@ -54,10 +51,9 @@ function validate(context: Context): Context {
 
 function encode(context: Context): Context {
 
-    const { log } = context;
-    log.label = label;
+    const log = context.log(label);
 
-    if (validate(context).log.isFatal) return context;
+    if (validate(context).log().isFatal) return context;
 
     context.flat.signature = convert.bytesToBase64(context.jws.signature as Uint8Array, true);
 

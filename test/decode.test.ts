@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import decode from '../src/decode.js';
 import { checkErrors } from './utils.js';
 import jws from '../src/jws.js'

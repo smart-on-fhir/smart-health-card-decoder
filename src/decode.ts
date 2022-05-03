@@ -1,9 +1,6 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import Context from "./context.js";
 import { ShcNumeric, QRUrl, JWSCompact, Options, JWSFlat, Base64Url } from "./types.js";
-import utils from "./utils.js";
+import { is, determineArtifact } from "./utils.js";
 import qr_decoder from './qr.js';
 import shc_decoder from './shc.js';
 import compact_decoder from './jws.compact.js';
@@ -29,16 +26,16 @@ async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, artifactO
 
     if (typeof artifactOrOptions === 'string') {
         artifact = artifactOrOptions;
-    } else if (utils.is.object(artifactOrOptions)) {
+    } else if (is.object(artifactOrOptions)) {
         options = artifactOrOptions;
     }
 
-    artifact = artifact || utils.determineArtifact(code);
+    artifact = artifact || determineArtifact(code);
 
     const context = new Context(options);
 
     if (artifact && !validTypes.includes(artifact)) {
-        return context.log.fatal(`Parameter 'type' is not a valid value (${validTypes.join('|')})`, ErrorCode.PARAMETER_INVALID);
+        return context.log().fatal(`Parameter 'type' is not a valid value (${validTypes.join('|')})`, ErrorCode.PARAMETER_INVALID);
     }
 
     switch (artifact) {
@@ -62,24 +59,24 @@ async function decode(code: ShcNumeric | QRUrl | JWSCompact | JWSFlat, artifactO
             context.flat = code as JWSFlat;
             flat_decoder.decode(context);
             break;
-            
+
         case 'jws.header':
             context.flat.header = code as Base64Url;
             jws_header.decode(context);
             break;
-            
+
         case 'jws.payload':
             context.flat.payload = code as Base64Url;
             jws_payload.decode(context);
             break;
-            
+
         case 'jws.signature':
             context.flat.signature = code as Base64Url;
             jws_signature.decode(context);
             break;
 
         default:
-            context.log.fatal(`Cannot determine artifact type from code`)
+            context.log().fatal(`Cannot determine artifact type from code`)
     }
 
     return context;

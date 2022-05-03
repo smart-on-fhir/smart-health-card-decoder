@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
 import { checkErrors } from "./utils.js";
 import Context from '../src/context.js';
 import fhir from '../src/fhir.js';
