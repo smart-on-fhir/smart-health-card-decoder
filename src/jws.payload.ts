@@ -2,7 +2,7 @@ import { JWSPayload } from "./types.js";
 import { inflateSync, deflateSync } from 'fflate';
 import Context from "./context.js";
 import { ErrorCode } from "./error.js";
-import {is, parseJson} from "./utils.js";
+import { is, parseJson } from "./utils.js";
 import convert from "./convert.js";
 import fhir from "./fhir.js";
 
@@ -30,7 +30,7 @@ function validate(context: Context): Context {
         return log.fatal(`JWS Payload missing 'not before' ('nbf') property or is not a number.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
-    if(payload.nbf > Date.now()) {
+    if (payload.nbf > Date.now()) {
         return log.fatal(`JWS Payload 'not before' nbf='${new Date(payload.nbf)}' is greater than now.`, ErrorCode.JWS_PAYLOAD_FUTURE_NBF);
     }
 
@@ -38,8 +38,8 @@ function validate(context: Context): Context {
         return log.fatal(`JWS Payload missing 'verifiable credential' ('vc') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
-    if ('exp' in payload) {
-        return log.fatal(`JWS Payload missing 'expiration' ('exp') property.`, ErrorCode.JWS_PAYLOAD_ERROR);
+    if (('exp' in payload) && (typeof payload.exp !== 'number')) {
+        return log.fatal(`JWS Payload expiration ('exp') property is not a number.`, ErrorCode.JWS_PAYLOAD_ERROR);
     }
 
     context.fhirBundle = context.fhirBundle || context.jws.payload?.vc.credentialSubject.fhirBundle;
