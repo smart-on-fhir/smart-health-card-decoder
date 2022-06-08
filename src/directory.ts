@@ -268,7 +268,7 @@ async function createFromUrl(url: string, context: Context): Promise<[IDirectory
         return [undefDirectory, context];
     }
 
-    if (!(await validate(downloaded as IDirectory, context))) {
+    if ( (await validate(downloaded as IDirectory, context)) === false && context.options.validation?.directory?.ommitBadIssuers === false ) {
         return [undefDirectory, context];
     }
 

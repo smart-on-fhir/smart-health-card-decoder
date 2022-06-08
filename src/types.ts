@@ -133,7 +133,8 @@ export interface DirectoryOptions {
         filterBadKeys?: boolean
     },
     directory?: {
-        allowDuplicates?: boolean
+        allowDuplicates?: boolean,
+        ommitBadIssuers?: boolean
     }
 }
 
