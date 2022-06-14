@@ -22,8 +22,19 @@ export async function validate(issuerInfos: IssuerInfo[], context: Context): Pro
         return Promise.resolve(false);
     }
 
+    const badIssuers: IssuerInfo[] = [];
     for (const ii of issuerInfos) {
-        await validateSingle(ii, context);
+        const success = await validateSingle(ii, context);
+        if (!success && context.options.validation?.directory?.ommitBadIssuers !== false) {
+            badIssuers.push(ii);
+            log.error(`Issuer "${ii.issuer.name || ii.issuer.iss}" failed validation and was omitted from the Directory`);
+        }
+    }
+
+    if (badIssuers.length) {
+        badIssuers.forEach(ii => {
+            issuerInfos.splice(issuerInfos.indexOf(ii), 1);
+        })
     }
 
     if (context.options.validation?.directory?.allowDuplicates !== true) {
@@ -53,9 +64,9 @@ async function validateSingle(issuerInfo: IssuerInfo, context: Context): Promise
     await key.validate.keys(issuerInfo.keys, context);
 
     // rewrite the error labels adding the iss so the error output can be traced
-    if(context.errors?.length ?? 0 > (errorCount ?? 0) ) {
+    if (context.errors?.length ?? 0 > (errorCount ?? 0)) {
         for (let index = (errorCount ?? 0); index < (context.errors?.length ?? 0); index++) {
-            context.errors![index].label = `KEY:${issuerInfo.issuer.iss}`;            
+            context.errors![index].label = `KEY:${issuerInfo.issuer.iss}`;
         }
     }
 
