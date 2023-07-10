@@ -56,7 +56,8 @@ export interface ImmunizationResource extends Resource {
         coding: {
             system: string,
             code: string
-        }[]
+        }[],
+        text?: string
     },
     patient: {
         reference: string
