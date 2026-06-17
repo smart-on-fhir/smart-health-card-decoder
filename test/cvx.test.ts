@@ -18,7 +18,7 @@ const cvx208 = {
     manufacturer: "Pfizer",
     mvx: "PFR",
     mvxStatus: "Active",
-    status: "Active",
+    status: "Inactive",
     updated: new Date("2021-09-10T07:00:00.000Z")
 };
 

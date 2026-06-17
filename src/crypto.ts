@@ -2,15 +2,6 @@ import convert from "./convert.js";
 import msrCrypto from "../lib/msrCrypto.cjs";
 
 
-// The lib types for Node does not properly expose the webcrypto api, 
-// so we have to declare it ourselves to keep TS happy. 
-declare module "crypto" {
-    namespace webcrypto {
-        const subtle: SubtleCrypto;
-    }
-}
-
-
 const HASH_ALGORITHM = "SHA-256";;
 const SIGNATURE_ALGORITHM = "ECDSA";
 const ECC_CURVE = "P-256";
